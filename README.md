@@ -1,4 +1,4 @@
-# AAn hybrid framework for SCADA cyber attack dataset generation
+# An hybrid framework for SCADA cyber attack dataset generation
 
 ## Table of contents
 - [Project Overview](#project-overview)
