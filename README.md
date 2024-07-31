@@ -10,7 +10,7 @@
 ...
 
 ## Initial Steps
-First of all you need to download the different virtual machines. This procedure assumes you're using VirtualBox. 
+First of all you need to download the different virtual machines. This procedure assumes you're using VirtualBox.  
 See [this document](vmware-fusion.md) if you're a macOS user who prefers to use VMWare Fusion, or encounters issues using VirtualBox.
 
 1. Download VMs:
@@ -19,7 +19,7 @@ See [this document](vmware-fusion.md) if you're a macOS user who prefers to use 
    - [PLC VM](https://netorgft4230013-my.sharepoint.com/:u:/g/personal/dformby_fortiphyd_com/ER0pG_X5IRNCg477jf2ppo8BdN0t13t9vrNBH92_oOWOHA?e=hNeJ88) - MD5=0fbb1254fb166466496f2a48780ae774
    - [Workstation VM](https://www.mattrideout.com/courses/cs6263/GRFICSv3/workstation.ova) - MD5=8b41ee6597404b7c9e9acf7c2b1c3866
 
-2. Create Network:
+2. Create Network:  
    This procedure assumes you're using Linux.
    - Open *Wi-Fi & Network* section in System Settings
    - Click on *Add new connection*
