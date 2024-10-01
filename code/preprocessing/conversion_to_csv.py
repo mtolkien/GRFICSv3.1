@@ -1,8 +1,6 @@
 import os
 import subprocess
 import pandas as pd
-
-
 def preprocess_frame_time_delta(df):
     """
     Elabora la colonna 'frame.time_delta' per calcolare la frequenza dei pacchetti.
@@ -15,7 +13,6 @@ def preprocess_frame_time_delta(df):
         df['Packet Frequency'] = 1 / df['frame.time_delta'].replace(0, pd.NA)  # Calcola la frequenza
         df.drop(columns=['frame.time_delta'], inplace=True)  # Rimuovi la colonna originale
     return df
-
 
 def process_pcapng(input_file, output_file):
     """

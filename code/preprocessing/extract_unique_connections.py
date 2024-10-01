@@ -1,5 +1,4 @@
 import csv
-
 def extract_unique_connection(file_csv, file_txt):
     connessioni_uniche = set()
 
@@ -23,4 +22,4 @@ def extract_unique_connection(file_csv, file_txt):
 
 connessioni_uniche_lista = extract_unique_connection('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/idle.csv',
                                                      '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/connessioni_uniche.txt')
-print("Operazione completata")
+

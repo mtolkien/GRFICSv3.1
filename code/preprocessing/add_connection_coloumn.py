@@ -25,7 +25,7 @@ def extract_attack_label(csv_filename):
     return attack_label
 
 
-def add_is_legitimate_column(csv_input_file, csv_output_file, unique_connections, attack_label):
+def add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_label, process_type):
     # Leggi il file CSV in input e creane uno nuovo con una colonna aggiuntiva "is_legitimate"
     with open(csv_input_file, mode='r', newline='') as csvfile_input:
         reader = csv.DictReader(csvfile_input)
@@ -43,13 +43,17 @@ def add_is_legitimate_column(csv_input_file, csv_output_file, unique_connections
 
                 connection = tuple(sorted([source_ip, destination_ip]))
 
-                # Cambia la logica per l'inserimento dei valori: 'Benign' o il nome dell'attacco
-                row['is_legitimate'] = "Benign" if connection in unique_connections else attack_label
+                if process_type == 'Multiclass':
+                    # Assegna 'Benign' o il tipo di attacco
+                    row['Connection'] = "Benign" if connection in unique_connections else attack_label
+                elif process_type == 'Binary':
+                    # Assegna 1 per attacco e 0 per benigno
+                    row['Connection'] = "0" if connection in unique_connections else "1"
 
                 writer.writerow(row)
 
 
-def process_directory(directory_path, txt_unique_connections):
+def process_directory(directory_path, txt_unique_connections, process_type):
     # Carica le coppie di connessioni uniche una volta sola
     unique_connections = load_unique_connections(txt_unique_connections)
 
@@ -60,15 +64,10 @@ def process_directory(directory_path, txt_unique_connections):
     for csv_file in csv_files:
         # Estrai l'etichetta dell'attacco dal nome del file
         attack_label = extract_attack_label(csv_file)
-
-        # Crea il percorso del file di output aggiungendo "_legitimate" prima dell'estensione .csv
-        csv_output_file = csv_file.replace('.csv', '_with_attackstype.csv')
-
-        print(f"Processing: {csv_file} -> {csv_output_file} with label '{attack_label}'")
-        add_is_legitimate_column(csv_file, csv_output_file, unique_connections, attack_label)
-
+        csv_output_file = csv_file.replace('.csv', process_type+'.csv')
+        add_connection_column(csv_file, csv_output_file, unique_connections, attack_label, process_type)
 
 
 # Esegui lo script specificando la directory contenente i CSV e il file delle connessioni uniche
 process_directory('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks',
-                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/connessioni_uniche.txt')
+                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/connessioni_uniche.txt', process_type='Multiclass')
