@@ -20,17 +20,17 @@ def load_unique_connections(txt_file):
 def extract_attack_label(csv_filename):
     # Estrai il nome del file senza il percorso
     base_name = os.path.basename(csv_filename)
-    # Suddividi il nome del file in base agli underscore (_) e ottieni il primo elemento come etichetta dell'attacco
+    # Ottengo l'etichetta dell'attacco
     attack_label = base_name.split('_')[0].lower()
     return attack_label
 
 
 def add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_label, process_type):
-    # Leggi il file CSV in input e creane uno nuovo con una colonna aggiuntiva "is_legitimate"
+    # Leggi il file CSV in input e creane uno nuovo con una colonna aggiuntiva "Type of connection"
     with open(csv_input_file, mode='r', newline='') as csvfile_input:
         reader = csv.DictReader(csvfile_input)
         # Aggiungi la nuova colonna
-        fieldnames = reader.fieldnames + ['Connection']
+        fieldnames = reader.fieldnames + ['Type of connection']
 
         with open(csv_output_file, mode='w', newline='') as csvfile_output:
             writer = csv.DictWriter(csvfile_output, fieldnames=fieldnames)
@@ -43,31 +43,41 @@ def add_connection_column(csv_input_file, csv_output_file, unique_connections, a
 
                 connection = tuple(sorted([source_ip, destination_ip]))
 
+                # Assegna il valore per "Type of connection"
                 if process_type == 'Multiclass':
-                    # Assegna 'Benign' o il tipo di attacco
-                    row['Connection'] = "Benign" if connection in unique_connections else attack_label
+                    row['Type of connection'] = "Benign" if connection in unique_connections else attack_label
                 elif process_type == 'Binary':
-                    # Assegna 1 per attacco e 0 per benigno
-                    row['Connection'] = "0" if connection in unique_connections else "1"
+                    row['Type of connection'] = "0" if connection in unique_connections else "1"
 
                 writer.writerow(row)
 
 
 def process_directory(directory_path, txt_unique_connections, process_type):
+    """
+    Cerca ed elabora tutti i file CSV all'interno della cartella specificata e delle sottocartelle.
+
+    :param directory_path: Percorso della cartella principale da elaborare.
+    :param txt_unique_connections: Percorso del file contenente le connessioni uniche.
+    :param process_type: Tipo di processo ('Multiclass' o 'Binary').
+    """
     # Carica le coppie di connessioni uniche una volta sola
     unique_connections = load_unique_connections(txt_unique_connections)
 
-    # Trova tutti i file CSV nella directory specificata
-    csv_files = glob.glob(os.path.join(directory_path, '*.csv'))
+    # Cammina attraverso la cartella e tutte le sottocartelle
+    for root, dirs, files in os.walk(directory_path):
+        for file in files:
+            # Considera solo i file con estensione .csv
+            if file.endswith(".csv"):
+                csv_input_file = os.path.join(root, file)
+                csv_output_file = os.path.join(root, file.replace('.csv', '_' + process_type.lower() + '.csv'))
 
-    # Itera su ciascun file CSV
-    for csv_file in csv_files:
-        # Estrai l'etichetta dell'attacco dal nome del file
-        attack_label = extract_attack_label(csv_file)
-        csv_output_file = csv_file.replace('.csv', process_type+'.csv')
-        add_connection_column(csv_file, csv_output_file, unique_connections, attack_label, process_type)
+                attack_label = extract_attack_label(csv_input_file)
+                add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_label, process_type)
+                os.remove(csv_input_file)
+                print(f"File originale eliminato: {csv_input_file}")
 
 
 # Esegui lo script specificando la directory contenente i CSV e il file delle connessioni uniche
-process_directory('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks',
-                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/connessioni_uniche.txt', process_type='Multiclass')
+process_directory('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv',
+                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv/connessioni_uniche.txt', process_type='Binary')
+# DA FARE MULTICLASS

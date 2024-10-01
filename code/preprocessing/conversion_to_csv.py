@@ -57,7 +57,7 @@ def process_pcapng(input_file, output_file):
         else:
             print(f"Elaborazione completata: {output_file}")
             # Richiama la funzione per modificare le etichette del CSV
-            rename_and_modify_csv(output_file, custom_labels) # Elimina il file .pcapng originale
+            rename_and_modify_csv(output_file, custom_labels)
 
         try:
             os.remove(input_file)
