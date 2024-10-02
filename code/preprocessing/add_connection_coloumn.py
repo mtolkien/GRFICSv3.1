@@ -12,7 +12,7 @@ def load_unique_connections(txt_file):
     return unique_connections
 
 
-def determine_attack_category(directory_path):
+def determine_attack_category(filename, directory_path):
     """
     Determine the attack category based on the directory path as it is.
     """
@@ -21,7 +21,7 @@ def determine_attack_category(directory_path):
         return "Denial of Service"
     elif 'Port Scan' in directory_path or 'OS Scan' in directory_path or 'Host Discovery' in directory_path:
         return "Network Scanning"
-    elif 'OpenVAS_scan' in directory_path:
+    elif 'OpenVAS_scan' in filename:
         return "Vulnerability Scanning"
     else:
         return "Benign"  # Default category
@@ -69,10 +69,10 @@ def process_directory(directory_path, txt_unique_connections, process_type):
                 csv_output_file = os.path.join(root, file.replace('.csv', f'_{process_type.lower()}.csv'))
 
                 # Determine attack category based on directory structure
-                attack_category = determine_attack_category(root)
+                attack_category = determine_attack_category(root, csv_input_file)
 
                 add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_category, process_type)
-                # os.remove(csv_input_file)
+                os.remove(csv_input_file)
                 print(f"Processed file: {csv_input_file} into {csv_output_file}")
 
 
