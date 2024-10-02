@@ -20,14 +20,14 @@ def clean_csv(directory_path):
 
                 df['Packet Frequency'] = df['Packet Frequency'].fillna(df['Packet Frequency'].mean()).astype(float)  # Media per Packet Frequency
                 df['TTL'] = df['TTL'].fillna(64).astype(int)  # Valore comune per il TTL potrebbe essere 64
-                df['Source Port'] = df['Source Port'].fillna(-1).astype(int)  #  -1 per porte mancanti
-                df['Destination Port'] = df['Destination Port'].fillna(-1).astype(int)
+                df['Source Port'] = df['Source Port'].fillna('N/A')
+                df['Destination Port'] = df['Destination Port'].fillna('N/A')
                 df['TCP Sequence Number'] = df['TCP Sequence Number'].fillna(0).astype(int)  #  0 come valore sicuro
                 df['TCP Acknowledgment Number'] = df['TCP Acknowledgment Number'].fillna(0).astype(int)
 
-                # Nuova gestione per Frame Length e IP Length
-                df['Frame Length'] = df['Frame Length'].fillna(0).astype(int)  # Sostituisci NaN con 0, poi convertili in int
-                df['IP Length'] = df['IP Length'].fillna(0).astype(int)  # Stessa cosa per IP Length
+                # Sostituisci NaN con 0, poi convertili in int
+                df['Frame Length'] = df['Frame Length'].fillna(0).astype(int)
+                df['IP Length'] = df['IP Length'].fillna(0).astype(int)
 
                 # Conversione delle colonne dei flag in binari
                 flag_columns = ['SYN Flag', 'ACK Flag', 'FIN Flag', 'RST Flag', 'PSH Flag', 'URG Flag']
@@ -40,8 +40,12 @@ def clean_csv(directory_path):
                 deleted_row_count = original_row_count - df.shape[0]
                 print(f"Righe eliminate: {deleted_row_count}")
 
-                new_file_path = os.path.join(root, f"{os.path.splitext(file)[0]}_cleared.csv")
-                df.to_csv(new_file_path, index=False)
+                # Creazione di un nuovo file csv
+                # new_file_path = os.path.join(root, f"{os.path.splitext(file)[0]}_cleared.csv")
+                # df.to_csv(new_file_path, index=False)
+
+                # Salva il DataFrame modificato sovrascrivendo il file originale
+                df.to_csv(file_path, index=False)
 
 
 # Utilizzo
