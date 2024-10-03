@@ -19,10 +19,10 @@ def clean_csv(directory_path):
                 df['Protocol'] = df['Protocol'].astype(int)
 
                 df['Packet Frequency'] = df['Packet Frequency'].fillna(df['Packet Frequency'].mean()).astype(float)  # Media per Packet Frequency
-                df['TTL'] = df['TTL'].fillna(64).astype(int)  # Valore comune per il TTL potrebbe essere 64
+                df['TTL'] = df['TTL'].fillna(64).astype(int)  # Valore comune per il TTL è 64
                 df['Source Port'] = df['Source Port'].fillna('N/A')
                 df['Destination Port'] = df['Destination Port'].fillna('N/A')
-                df['TCP Sequence Number'] = df['TCP Sequence Number'].fillna(0).astype(int)  #  0 come valore sicuro
+                df['TCP Sequence Number'] = df['TCP Sequence Number'].fillna(0).astype(int)  # Valore sicuro 0
                 df['TCP Acknowledgment Number'] = df['TCP Acknowledgment Number'].fillna(0).astype(int)
 
                 # Sostituisci NaN con 0, poi convertili in int

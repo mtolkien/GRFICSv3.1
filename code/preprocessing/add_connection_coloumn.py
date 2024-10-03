@@ -78,4 +78,4 @@ def process_directory(directory_path, txt_unique_connections, process_type):
 
 # Execute the script by specifying the directory containing the CSV files and the file with unique connections
 process_directory('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv',
-                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv/connessioni_uniche.txt', process_type='Multiclass')
+                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv/connessioni_uniche.txt', process_type='Binary')
