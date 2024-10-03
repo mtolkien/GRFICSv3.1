@@ -61,9 +61,9 @@ def process_pcapng(input_file, output_file):
 
         try:
             os.remove(input_file)
-            print(f"File .pcapng eliminato: {input_file}")
+            print(f"File .pcapng eliminato: {input_file}\n")
         except Exception as e:
-            print(f"Errore durante l'eliminazione del file {input_file}: {e}")
+            print(f"Errore durante l'eliminazione del file {input_file}: {e}\n")
 
 
 def rename_and_modify_csv(output_file, custom_labels):
@@ -85,9 +85,9 @@ def rename_and_modify_csv(output_file, custom_labels):
 
         # Salva il DataFrame modificato nel file CSV
         df.to_csv(output_file, index=False)
-        print(f"Intestazioni del CSV aggiornate per: {output_file}")
+        print(f"Intestazioni del CSV aggiornate per: {output_file}\n")
     except Exception as e:
-        print(f"Errore durante la modifica delle etichette per {output_file}: {e}")
+        print(f"Errore durante la modifica delle etichette per {output_file}: {e}\n")
 
 
 def process_folder(folder_path):

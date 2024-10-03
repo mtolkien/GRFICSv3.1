@@ -8,8 +8,9 @@ def clean_csv(directory_path):
                 file_path = os.path.join(root, file)
 
                 df = pd.read_csv(file_path, low_memory=False)
+                file_name = os.path.basename(file_path)
 
-                print(f'Sto lavorando su questo file: {file_path}')
+                print(f'Sto lavorando su questo file: {file_name}\n')
                 original_row_count = df.shape[0]
 
                 # Gestione dei valori mancanti in base alla colonna
@@ -38,7 +39,7 @@ def clean_csv(directory_path):
                 df.dropna(subset=['Source IP', 'Destination IP'], inplace=True)
 
                 deleted_row_count = original_row_count - df.shape[0]
-                print(f"Righe eliminate: {deleted_row_count}")
+                print(f"Righe eliminate: {deleted_row_count}\n")
 
                 # Creazione di un nuovo file csv
                 # new_file_path = os.path.join(root, f"{os.path.splitext(file)[0]}_cleared.csv")
