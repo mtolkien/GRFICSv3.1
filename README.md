@@ -34,7 +34,7 @@ See [this document](vmware-fusion.md) if you're a macOS user who prefers to use 
    - In the properties section choose as IPV4 prefix *192.168.95.0/24* and enable *DHCP* 
    - Click on *Apply* to save properties
 
-3. **Configuration of the VMs**
+3. **Configuration of the VMs**:  
    The following procedure is common to all VMs.
    - Click on *Settings* > *Network*
    - Enable Network Adapter
