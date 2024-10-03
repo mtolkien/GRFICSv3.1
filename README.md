@@ -15,6 +15,12 @@ The architecture of this project represents a simulation of an Industrial Contro
 - **plc_2**: represents the PLC and responds to Modbus/TCP requests;
 - **ScadaBR**: represents a Human Machine Interface (HMI), used to monitor process measurements collected by the PLC and to send commands to the PLC;
 - **Workstation**: virtual machine with software used for programming the OpenPLC
+  
+In addition to the virtual machines in the original testbed, a virtual machine was integrated with Kali Linux installed, which was indispensable for the next phases of the study.
+<br>
+<p align="center">
+  <img src="GRFICSv3/testbed.png" alt="Architecture" width="800">
+</p>
 
 ## Initial Steps
 First of all you need to download the different virtual machines. This procedure assumes you're using VirtualBox.  
