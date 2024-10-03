@@ -59,7 +59,7 @@ The testbed described above is made up of several virtual machines, and a specif
   4. Inside this folder is the *remote_io* folder that we are interested in
   5. Inside this folder there is an additional folder called *modbus*
   6. Several bash language scripts can be found in the modbus folder, but the main one is *run_all.sh*.
-  7. With the command *sudo bash run_all.sh* and re-entering the password, we start the simulated system correctly.
+  7. With the command ``` sudo bash run_all.sh ``` and re-entering the password, we start the simulated system correctly.
   8. To sum up: *GRFICSv2 > simulation_vm > simulation > remote_io > modbus > run_all.sh*
      
 ## Architecture
