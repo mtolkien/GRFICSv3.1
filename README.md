@@ -15,9 +15,6 @@ The architecture of this project represents a simulation of an Industrial Contro
 - **plc_2**: represents the PLC and responds to Modbus/TCP requests;
 - **ScadaBR**: represents a Human Machine Interface (HMI), used to monitor process measurements collected by the PLC and to send commands to the PLC;
 - **Workstation**: virtual machine with software used for programming the OpenPLC
-  
-In addition to this section consisting of virtual machines, was also added a physical PLC from Siemens (specifically the LOGO! 24V model).
-
 
 ## Initial Steps
 First of all you need to download the different virtual machines. This procedure assumes you're using VirtualBox.  
@@ -30,16 +27,44 @@ See [this document](vmware-fusion.md) if you're a macOS user who prefers to use 
    - [Workstation VM](https://www.mattrideout.com/courses/cs6263/GRFICSv3/workstation.ova) - MD5=8b41ee6597404b7c9e9acf7c2b1c3866
 
 2. **Create Network**:  
-   This procedure assumes you're using Linux.
-   - Open *Wi-Fi & Network* section in System Settings
-   - Click on *Add new connection*
-   - Choose *Wired Ethernet (Shared)* connection
+   This procedure assumes you're using VirtualBox.
+   - Click on *Tools* > *Network* 
+   - Choose *NAT Networks* and create one
    - Rename as you like
-   - In the section *Wired* > *Restrict to device* choose the MAC Address of the phisical PLC
-   - Check if in the section *IPV4* > *Method* is selected *Shared to other computers*
+   - In the properties section choose as IPV4 prefix *192.168.95.0/24* and enable *DHCP* 
+   - Click on *Apply* to save properties
 
-3. **Configuration of the physical plc**  
-   
+3. **Configuration of the VMs**
+   The following procedure is common to all VMs.
+   - Click on *Settings* > *Network*
+   - Enable Network Adapter
+   - In the section *Attached to:* choose NAT Network and in the name section, check whether this is the NAT network previously created
+   - In the section *Promiscuous Mode:* choose *Allow All*  
+   (In this testbed it was necessary to use a VM on which [Kali Linux](https://www.kali.org/get-kali/#kali-virtual-machines) was installed. The same network configuration was also done out for this VM.)
 
-5.  
+## VM credentials:
+- Simulation (Chemical Plant): simulation | Fortiphyd  
+- HMI (ScadaBR): scadabr | scadabr web console: admin | admin  
+- PLC: user | password  
+- Workstation: workstation | workstation  
+
+## Use of the testbed
+The testbed described above is made up of several virtual machines, and a specific order must be followed in order to avoid problems or incorrect exchange of packets between them. The precise order in which no problems were encountered is as follows: 
+- First of all start PLC VM and HMI VM. After both have started, log in on both
+- Start Workstation VM, the login will be automatic
+- Finally start up Simulation VM, that represents the simulated chemical plant. For this VM, some steps must be taken for the simulated process to allow the simulated process to run:
+  1. When the machine has booted up, log in and with the *ls* command you will see a folder called *GRFICSv2*
+  2. Entering this folder reveals several directories. The directory we are interested in is *simulation_vm*
+  3. There are other directories here too, we are interested in *simulation*
+  4. Inside this folder is the *remote_io* folder that we are interested in
+  5. Inside this folder there is an additional folder called *modbus*
+  6. Several bash language scripts can be found in the modbus folder, but the main one is *run_all.sh*.
+  7. With the command *sudo bash run_all.sh* and re-entering the password, we start the simulated system correctly.
+  8. To sum up: *GRFICSv2 > simulation_vm > simulation > remote_io > modbus > run_all.sh*
+     
 ## Architecture
+
+## Authors
+| Name | Description |
+| --- | --- |
+| <p dir="auto"><strong>Alessandro Macaro</strong> |<br>GitHub   - <a href="https://github.com/mtolkien">mtolkien</a></p><p dir="auto">Email - <a href="mailto:a.macaro@studenti.unisa.it">a.macaro@studenti.unisa.it</a></p><p dir="auto">LinkedIn - <a href="www.linkedin.com/in/alemacaro">Alessandro Macaro</a></p><br>|
