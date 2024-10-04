@@ -4,6 +4,9 @@
 - [Project Overview](#project-overview)
 - [Architecture](#architecture)
 - [Initial Steps](#initial-steps)
+- [VMs credentials](#vms-credentials)
+- [Use of the testbed](#use-of-the-testbed)
+- [Dataset](#dataset)
 - [Authors](#authors)
 
 ## Project Overview
@@ -15,6 +18,12 @@ The architecture of this project represents a simulation of an Industrial Contro
 - **plc_2**: represents the PLC and responds to Modbus/TCP requests;
 - **ScadaBR**: represents a Human Machine Interface (HMI), used to monitor process measurements collected by the PLC and to send commands to the PLC;
 - **Workstation**: virtual machine with software used for programming the OpenPLC
+  
+In addition to the virtual machines in the original testbed, a virtual machine was integrated with Kali Linux installed, which was indispensable for the next phases of the study.
+<br>
+<p align="center">
+  <img src="GRFICSv3/testbed.png" alt="Architecture" width="800">
+</p>
 
 ## Initial Steps
 First of all you need to download the different virtual machines. This procedure assumes you're using VirtualBox.  
@@ -42,7 +51,7 @@ See [this document](vmware-fusion.md) if you're a macOS user who prefers to use 
    - In the section *Promiscuous Mode:* choose *Allow All*  
    (In this testbed it was necessary to use a VM on which [Kali Linux](https://www.kali.org/get-kali/#kali-virtual-machines) was installed. The same network configuration was also done out for this VM.)
 
-## VM credentials:
+## VMs credentials
 - Simulation (Chemical Plant): simulation | Fortiphyd  
 - HMI (ScadaBR): scadabr | scadabr web console: admin | admin  
 - PLC: user | password  
@@ -62,7 +71,8 @@ The testbed described above is made up of several virtual machines, and a specif
   7. With the command ``` sudo bash run_all.sh ``` and re-entering the password, we start the simulated system correctly.
   8. To sum up: *GRFICSv2 > simulation_vm > simulation > remote_io > modbus > run_all.sh*
      
-## Architecture
+## Dataset
+The final dataset and intermediate files, including pcapng files, are publicly available in this [Google Drive](https://drive.google.com/drive/folders/1Ug0LFHZki467kKtPCwBwJ0JmP8iyukB9?usp=sharing)
 
 ## Authors
 | Name | Description |
