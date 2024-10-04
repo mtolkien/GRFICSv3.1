@@ -1,6 +1,35 @@
 import os
 import subprocess
 import pandas as pd
+
+def map_protocol_to_number(protocol):
+    """
+    Mappa il protocollo da una stringa a un numero personalizzato.
+
+    :param protocol: Nome del protocollo (es. 'TCP', 'UDP').
+    :return: Numero corrispondente al protocollo.
+    """
+    protocol_mapping = {
+        'TCP': 1,
+        'UDP': 2,
+        'ICMP': 3,
+        'HTTP': 4,
+        'HTTPS': 5,
+        'DNS': 6,
+        'DHCP': 7,
+        'ARP': 8,
+        'TLS': 9,
+        'FTP': 10,
+        'SSH': 11,
+        'SMTP': 12,
+        'SNMP': 13,
+        'Modbus': 14,
+        'SMB': 15,
+    }
+
+    return protocol_mapping.get(protocol, 0)
+
+
 def preprocess_frame_time_delta(df):
     """
     Elabora la colonna 'frame.time_delta' per calcolare la frequenza dei pacchetti.
@@ -11,8 +40,9 @@ def preprocess_frame_time_delta(df):
     if 'frame.time_delta' in df.columns:
         df['frame.time_delta'] = pd.to_numeric(df['frame.time_delta'], errors='coerce')
         df['Packet Frequency'] = 1 / df['frame.time_delta'].replace(0, pd.NA)  # Calcola la frequenza
-        df.drop(columns=['frame.time_delta'], inplace=True)  # Rimuovi la colonna originale
+        df.drop(columns=['frame.time_delta'], inplace=True)
     return df
+
 
 def process_pcapng(input_file, output_file):
     """
@@ -28,7 +58,7 @@ def process_pcapng(input_file, output_file):
         "-e", "frame.time_delta",
         "-e", "ip.src",
         "-e", "ip.dst",
-        "-e", "ip.proto",
+        "-e", "_ws.col.Protocol",  # Campo del protocollo testuale, non numerico
         "-e", "frame.len",
         "-e", "ip.ttl",
         "-e", "ip.len",
@@ -47,16 +77,13 @@ def process_pcapng(input_file, output_file):
     ]
 
     with open(output_file, 'w') as outfile:
-        # Esegui il comando tshark e redirigi l'output nel file CSV
         process = subprocess.Popen(command, stdout=outfile, stderr=subprocess.PIPE)
         _, stderr = process.communicate()
 
-        # Verifica se ci sono errori
         if process.returncode != 0:
             print(f"Errore durante l'elaborazione di {input_file}: {stderr.decode('utf-8')}")
         else:
             print(f"Elaborazione completata: {output_file}")
-            # Richiama la funzione per modificare le etichette del CSV
             rename_and_modify_csv(output_file, custom_labels)
 
         try:
@@ -83,6 +110,9 @@ def rename_and_modify_csv(output_file, custom_labels):
         # Elabora 'frame.time_delta' per calcolare la frequenza
         df = preprocess_frame_time_delta(df)
 
+        # Converte il protocollo umano in numero
+        df['Protocol'] = df['Protocol'].apply(map_protocol_to_number)
+
         # Salva il DataFrame modificato nel file CSV
         df.to_csv(output_file, index=False)
         print(f"Intestazioni del CSV aggiornate per: {output_file}\n")
@@ -108,13 +138,13 @@ def process_folder(folder_path):
                 process_pcapng(input_file, output_file)
 
 
-# Definisci le etichette personalizzate che desideri utilizzare nel file CSV
 custom_labels = [
-    "Packet Frequency", "Source IP", "Destination IP", "Protocol", "Frame Length",
-    "TTL", "IP Length", "Source Port", "Destination Port", "TCP Sequence Number",
-    "TCP Acknowledgment Number", "SYN Flag", "ACK Flag", "FIN Flag", "RST Flag",
-    "PSH Flag", "URG Flag"
+    "Packet Frequency", "Source IP", "Destination IP", "Protocol", 
+    "Frame Length", "TTL", "IP Length", "Source Port", "Destination Port",
+    "TCP Sequence Number", "TCP Acknowledgment Number", "SYN Flag", "ACK Flag",
+    "FIN Flag", "RST Flag", "PSH Flag", "URG Flag"
 ]
 
-# Avvia il processo per l'intera cartella
-process_folder("/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks")
+
+# Avvia il processo per l'intera cartellag
+process_folder("/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/pcapng")
