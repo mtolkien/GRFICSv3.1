@@ -68,7 +68,8 @@ The testbed described above is made up of several virtual machines, and a specif
   7. With the command ``` sudo bash run_all.sh ``` and re-entering the password, we start the simulated system correctly.
   8. To sum up: *GRFICSv2 > simulation_vm > simulation > remote_io > modbus > run_all.sh*
      
-## Architecture
+## Dataset
+The final dataset and intermediate files, including pcapng files, are publicly available in this [Google Drive](https://drive.google.com/drive/folders/1Ug0LFHZki467kKtPCwBwJ0JmP8iyukB9?usp=sharing)
 
 ## Authors
 | Name | Description |
