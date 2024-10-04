@@ -4,8 +4,8 @@
 - [Project Overview](#project-overview)
 - [Architecture](#architecture)
 - [Initial Steps](#initial-steps)
-- [VMs credentials](#vm-credentials)
-- [Use of the testbed](#testbed)
+- [VMs credentials](#vms-credentials)
+- [Use of the testbed](#use-of-the-testbed)
 - [Dataset](#dataset)
 - [Authors](#authors)
 
