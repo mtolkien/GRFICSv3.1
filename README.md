@@ -4,6 +4,9 @@
 - [Project Overview](#project-overview)
 - [Architecture](#architecture)
 - [Initial Steps](#initial-steps)
+- [VMs credentials](#vm-credentials)
+- [Use of the testbed](#testbed)
+- [Dataset](#dataset)
 - [Authors](#authors)
 
 ## Project Overview
@@ -48,7 +51,7 @@ See [this document](vmware-fusion.md) if you're a macOS user who prefers to use 
    - In the section *Promiscuous Mode:* choose *Allow All*  
    (In this testbed it was necessary to use a VM on which [Kali Linux](https://www.kali.org/get-kali/#kali-virtual-machines) was installed. The same network configuration was also done out for this VM.)
 
-## VM credentials:
+## VMs credentials
 - Simulation (Chemical Plant): simulation | Fortiphyd  
 - HMI (ScadaBR): scadabr | scadabr web console: admin | admin  
 - PLC: user | password  
