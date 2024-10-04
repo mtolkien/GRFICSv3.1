@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 
-def clean_csv(directory_path):
-    for root, dirs, files in os.walk(directory_path):
+def clean_csv(input_directory_path, output_directory_path):
+    for root, dirs, files in os.walk(input_directory_path):
         for file in files:
             if file.endswith(".csv"):
                 file_path = os.path.join(root, file)
@@ -15,23 +15,23 @@ def clean_csv(directory_path):
                 original_row_count = df.shape[0]
 
                 # Gestione dei valori mancanti in base alla colonna
-
-                # Converti i valori in stringa e filtra solo quelli numerici e senza parte decimale
                 df = df[df['Protocol'].astype(str).str.replace('.', '', regex=False).str.isnumeric()]
                 df['Protocol'] = df['Protocol'].astype(np.int32)
 
                 df['Packet Frequency'] = df['Packet Frequency'].fillna(df['Packet Frequency'].mean()).astype(np.float32)  # Media per Packet Frequency
-                df['TTL'] = df['TTL'].fillna(64).astype(np.int32)  # Valore comune per il TTL è 64
+
+                df = df[df['TTL'].astype(str).str.replace('.', '', regex=False).str.isnumeric()]
+                df['TTL'] = pd.to_numeric(df['TTL'], errors='coerce').fillna(64).astype(np.int32)
+
                 df['Source Port'] = df['Source Port'].fillna('N/A')
                 df['Destination Port'] = df['Destination Port'].fillna('N/A')
                 df['TCP Sequence Number'] = df['TCP Sequence Number'].fillna(0).astype(np.int32)  # Valore sicuro 0
                 df['TCP Acknowledgment Number'] = df['TCP Acknowledgment Number'].fillna(0).astype(np.int32)
 
-                # Sostituisci NaN con 0, poi convertili in int
                 df['Frame Length'] = df['Frame Length'].fillna(0).astype(np.int32)
                 df['IP Length'] = df['IP Length'].fillna(0).astype(np.int32)
 
-                # Conversione delle colonne dei flag in binari (con valori int32 e sostituzione NaN con 0)
+                # Conversione delle colonne dei flag in binari
                 flag_columns = ['SYN Flag', 'ACK Flag', 'FIN Flag', 'RST Flag', 'PSH Flag', 'URG Flag']
                 for flag in flag_columns:
                     df[flag] = df[flag].map({True: 1, False: 0}).fillna(0).astype(np.int32)
@@ -42,9 +42,12 @@ def clean_csv(directory_path):
                 deleted_row_count = original_row_count - df.shape[0]
                 print(f"Righe eliminate: {deleted_row_count}\n")
 
-                # Salva il DataFrame modificato sovrascrivendo il file originale
-                df.to_csv(file_path, index=False)
+                output_dir = os.path.join(output_directory_path, os.path.relpath(root, input_directory_path))
+                os.makedirs(output_dir, exist_ok=True)
+                output_file_path = os.path.join(output_dir, file_name)
+                df.to_csv(output_file_path, index=False)
 
 
-directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv'
-clean_csv(directory_path)
+input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv before cleaning'
+output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
+clean_csv(input_directory_path, output_directory_path)
