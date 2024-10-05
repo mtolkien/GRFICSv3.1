@@ -12,12 +12,12 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
     data = data.drop(columns=['Source IP', 'Destination IP'])
 
     # Separazione delle feature (X) e del target (y)
-    X = data.drop(columns=['Type of connection'])  # Supponiamo che 'Type of connection' sia la variabile target
+    X = data.drop(columns=['Type of connection'])
     y = data['Type of connection']
 
-    # Identifica le feature categoriali (es. Protocol) e le feature numeriche
-    categorical_features = ['Protocol']  # Aggiungi altre feature categoriali se necessario
-    numeric_features = X.columns.difference(categorical_features)  # Tutte le altre sono numeriche
+    # Identifica le feature categoriali e le feature numeriche
+    categorical_features = ['Protocol']
+    numeric_features = X.columns.difference(categorical_features)
 
     # Crea un ColumnTransformer per applicare trasformazioni diverse su categoriali e numeriche
     preprocessor = ColumnTransformer(
