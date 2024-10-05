@@ -1,28 +1,37 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 def load_and_preprocess_data(csv_file, test_size=0.2):
     data = pd.read_csv(csv_file)
 
-    # Codifica delle colonne categoriali (come Source IP e Destination IP)
-    label_encoder_ip = LabelEncoder()
-    data['Source IP'] = label_encoder_ip.fit_transform(data['Source IP'])
-    data['Destination IP'] = label_encoder_ip.fit_transform(data['Destination IP'])
+    # Rimuovi gli indirizzi IP
+    data = data.drop(columns=['Source IP', 'Destination IP'])
 
     # Separazione delle feature (X) e del target (y)
-    X = data.drop(columns=['Type of connection'])
+    X = data.drop(columns=['Type of connection'])  # Supponiamo che 'Type of connection' sia la variabile target
     y = data['Type of connection']
+
+    # Identifica le feature categoriali (es. Protocol) e le feature numeriche
+    categorical_features = ['Protocol']  # Aggiungi altre feature categoriali se necessario
+    numeric_features = X.columns.difference(categorical_features)  # Tutte le altre sono numeriche
+
+    # Crea un ColumnTransformer per applicare trasformazioni diverse su categoriali e numeriche
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), numeric_features),
+            ('cat', OneHotEncoder(), categorical_features)
+        ])
 
     # Suddivisione in training set e test set
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
-    # Standardizzazione delle feature
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    # Applica il preprocessing
+    X_train = preprocessor.fit_transform(X_train)
+    X_test = preprocessor.transform(X_test)
 
     return X_train, y_train, X_test, y_test
 
@@ -30,25 +39,8 @@ def train_knn(dataset_path):
     X_train, y_train, X_test, y_test = load_and_preprocess_data(dataset_path, test_size=0.2)
 
     # Inizializza il classificatore KNN
-    knn_classifier = KNeighborsClassifier(n_neighbors=5)  # Puoi cambiare il valore di n_neighbors
-
+    knn_classifier = KNeighborsClassifier(n_neighbors=5)
     knn_classifier.fit(X_train, y_train)
-
-    # Valuta sul set di training
-    y_train_pred = knn_classifier.predict(X_train)
-
-    # Calcola le metriche di valutazione sul training
-    train_accuracy = accuracy_score(y_train, y_train_pred)
-    train_precision = precision_score(y_train, y_train_pred, pos_label=1, zero_division=0)
-    train_recall = recall_score(y_train, y_train_pred, pos_label=1, zero_division=0)
-    train_f1 = f1_score(y_train, y_train_pred, pos_label=1, zero_division=0)
-
-    # Stampa i risultati sul training
-    print("\nRisultati sul Training con KNN:")
-    print(f"Accuracy del Training: {train_accuracy:.4f}")
-    print(f"Precisione del Training: {train_precision:.4f}")
-    print(f"Recall del Training: {train_recall:.4f}")
-    print(f"F1 Score del Training: {train_f1:.4f}")
 
     # Valuta sul set di test
     y_pred = knn_classifier.predict(X_test)

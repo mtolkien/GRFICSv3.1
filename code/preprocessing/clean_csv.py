@@ -50,4 +50,5 @@ def clean_csv(input_directory_path, output_directory_path):
 
 input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv before cleaning'
 output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
+
 clean_csv(input_directory_path, output_directory_path)

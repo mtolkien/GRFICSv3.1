@@ -72,7 +72,6 @@ def process_directory(directory_path, txt_unique_connections, process_type):
                 attack_category = determine_attack_category(root, csv_input_file)
 
                 add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_category, process_type)
-                os.remove(csv_input_file)
                 print(f"Processed file: {csv_input_file} into {csv_output_file}\n")
 
 
