@@ -23,7 +23,7 @@ try:
         else:
             print(f"Registri sovrascritti con successo con i valori casuali")
 
-        time.sleep(0.2)
+        time.sleep(0.0005)
 
 except KeyboardInterrupt:
     print("Esecuzione interrotta manualmente.")
