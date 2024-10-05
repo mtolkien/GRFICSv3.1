@@ -4,9 +4,10 @@ from pymodbus.client import ModbusTcpClient
 # Configura l'indirizzo IP e la porta del server Modbus
 client = ModbusTcpClient('192.168.95.2', port=502)
 
+print("Connessione in corso...")
 client.connect()
 
-# Indirizzo della coil
+# Indirizzo coil
 address = 40
 
 try:
@@ -19,9 +20,9 @@ try:
         else:
             print(f"Coil {address} scritto con successo con valore {int(current_value)}")
 
-        time.sleep(0.1)
+        time.sleep(0.01)
 
-        current_value = False  # Secondo valore
+        current_value = False
         result = client.write_coil(address, current_value)
 
         if result.isError():
@@ -29,10 +30,10 @@ try:
         else:
             print(f"Coil {address} scritto con successo con valore {int(current_value)}")
 
-        time.sleep(0.1)
+        time.sleep(0.01)
 
 except KeyboardInterrupt:
-    print("Interruzione manuale. Chiusura del client...")
+    print("Operazione interrotta")
 
 finally:
     client.close()

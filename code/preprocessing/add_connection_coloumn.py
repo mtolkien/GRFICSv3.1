@@ -23,6 +23,8 @@ def determine_attack_category(filename, directory_path):
         return "Network Scanning"
     elif 'OpenVAS_scan' in filename:
         return "Vulnerability Scanning"
+    elif 'Modbus' in directory_path:
+        return "Modbus Attack"
     else:
         return "Benign"  # Default category
 

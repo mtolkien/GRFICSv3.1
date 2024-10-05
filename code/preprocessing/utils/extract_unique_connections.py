@@ -20,6 +20,6 @@ def extract_unique_connection(file_csv, file_txt):
             outputfile.write(f"{connessione[0]}, {connessione[1]}\n")
 
 
-connessioni_uniche_lista = extract_unique_connection('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/idle.csv',
-                                                     '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks/connessioni_uniche.txt')
+connessioni_uniche = extract_unique_connection('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning/idle.csv',
+                                                     '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/connessioni_uniche.txt')
 
