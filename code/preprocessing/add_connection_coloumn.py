@@ -1,8 +1,12 @@
-import csv
 import os
+import csv
+import pandas as pd
 
 
 def load_unique_connections(txt_file):
+    """
+    Carica le connessioni uniche da un file di testo.
+    """
     unique_connections = set()
     with open(txt_file, mode='r') as file:
         for line in file:
@@ -14,9 +18,8 @@ def load_unique_connections(txt_file):
 
 def determine_attack_category(filename, directory_path):
     """
-    Determine the attack category based on the directory path as it is.
+    Determina la categoria di attacco in base alla struttura della directory o al nome del file.
     """
-    # Check against the exact strings
     if 'Flooding attack' in directory_path:
         return "Denial of Service"
     elif 'Port Scan' in directory_path or 'OS Scan' in directory_path or 'Host Discovery' in directory_path:
@@ -26,57 +29,73 @@ def determine_attack_category(filename, directory_path):
     elif 'Modbus' in directory_path:
         return "Modbus Attack"
     else:
-        return "Benign"  # Default category
+        return "Benign"  # Categoria predefinita
 
 
-def add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_category, process_type):
-    with open(csv_input_file, mode='r', newline='') as csvfile_input:
-        reader = csv.DictReader(csvfile_input)
-        fieldnames = reader.fieldnames + ['Type of connection']
-
-        with open(csv_output_file, mode='w', newline='') as csvfile_output:
-            writer = csv.DictWriter(csvfile_output, fieldnames=fieldnames)
-            writer.writeheader()
-
-            for row in reader:
-                source_ip = row['Source IP'].strip()
-                destination_ip = row['Destination IP'].strip()
-
-                connection = tuple(sorted([source_ip, destination_ip]))
-
-                # Assign the "Type of connection" value
-                if process_type == 'Multiclass':
-                    row['Type of connection'] = "Benign" if connection in unique_connections else attack_category
-                elif process_type == 'Binary':
-                    row['Type of connection'] = "0" if connection in unique_connections else "1"
-
-                writer.writerow(row)
-
-
-def process_directory(directory_path, txt_unique_connections, process_type):
+def add_connection_column(df, unique_connections, attack_category, process_type):
     """
-    Process all CSV files within the specified directory and subdirectories to add the "Type of connection" column.
+    Aggiunge la colonna "Type of connection" al DataFrame in base alle connessioni uniche.
+    """
+    df['Type of connection'] = ""
 
-    :param directory_path: Path to the main directory containing the CSV files.
-    :param txt_unique_connections: Path to the file containing the unique connections.
-    :param process_type: Process type ('Multiclass' or 'Binary').
+    for i, row in df.iterrows():
+        source_ip = row['Source IP'].strip()
+        destination_ip = row['Destination IP'].strip()
+
+        connection = tuple(sorted([source_ip, destination_ip]))
+
+        # Assegna il valore corretto alla colonna "Type of connection"
+        if process_type == 'Multiclass':
+            df.at[i, 'Type of connection'] = "Benign" if connection in unique_connections else attack_category
+        elif process_type == 'Binary':
+            df.at[i, 'Type of connection'] = "0" if connection in unique_connections else "1"
+
+
+def process_directory(input_directory_path, output_directory_path, txt_unique_connections, process_type):
+    """
+    Elabora tutti i file CSV nella directory di input aggiungendo la colonna "Type of connection" e salva
+    i file modificati nella directory di output mantenendo la stessa struttura delle directory.
+
+    :param input_directory_path: Path della directory dei file CSV di input.
+    :param output_directory_path: Path della directory in cui salvare i file CSV di output.
+    :param txt_unique_connections: Path del file con le connessioni uniche.
+    :param process_type: Tipo di processo ('Multiclass' o 'Binary').
     """
     unique_connections = load_unique_connections(txt_unique_connections)
 
-    # Iterate through all files in the directory and subdirectories
-    for root, dirs, files in os.walk(directory_path):
+    output_directory_path = f"{output_directory_path}_{process_type.lower()}"
+
+    # Itera attraverso tutti i file CSV nella directory
+    for root, dirs, files in os.walk(input_directory_path):
         for file in files:
             if file.endswith(".csv"):
-                csv_input_file = os.path.join(root, file)
-                csv_output_file = os.path.join(root, file.replace('.csv', f'_{process_type.lower()}.csv'))
+                file_path = os.path.join(root, file)
 
-                # Determine attack category based on directory structure
-                attack_category = determine_attack_category(root, csv_input_file)
+                # Leggi il file CSV
+                df = pd.read_csv(file_path, low_memory=False)
+                file_name = os.path.basename(file_path)
 
-                add_connection_column(csv_input_file, csv_output_file, unique_connections, attack_category, process_type)
-                print(f"Processed file: {csv_input_file} into {csv_output_file}\n")
+                print(f'Sto lavorando su questo file: {file_name}\n')
+
+                # Determina la categoria di attacco
+                attack_category = determine_attack_category(file, root)
+
+                # Aggiungi la colonna "Type of connection"
+                add_connection_column(df, unique_connections, attack_category, process_type)
+
+                # Crea la directory di output mantenendo la struttura delle directory di input
+                output_dir = os.path.join(output_directory_path, os.path.relpath(root, input_directory_path))
+                os.makedirs(output_dir, exist_ok=True)
+
+                # Salva il file CSV modificato
+                output_file_path = os.path.join(output_dir, file_name)
+                df.to_csv(output_file_path, index=False)
+                print(f"File salvato in: {output_file_path}\n")
 
 
-# Execute the script by specifying the directory containing the CSV files and the file with unique connections
-process_directory('/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv',
-                  '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/Attacks csv/connessioni_uniche.txt', process_type='Binary')
+input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
+output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections'
+txt_unique_connections = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/connessioni_uniche.txt'
+process_type = 'Multiclass'
+
+process_directory(input_directory_path, output_directory_path, txt_unique_connections, process_type)
