@@ -96,6 +96,6 @@ def process_directory(input_directory_path, output_directory_path, txt_unique_co
 input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
 output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections'
 txt_unique_connections = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/connessioni_uniche.txt'
-process_type = 'Multiclass'
+process_type = 'Binary'
 
 process_directory(input_directory_path, output_directory_path, txt_unique_connections, process_type)

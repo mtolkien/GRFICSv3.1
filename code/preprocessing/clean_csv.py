@@ -23,8 +23,8 @@ def clean_csv(input_directory_path, output_directory_path):
                 df = df[df['TTL'].astype(str).str.replace('.', '', regex=False).str.isnumeric()]
                 df['TTL'] = pd.to_numeric(df['TTL'], errors='coerce').fillna(64).astype(np.int32)
 
-                df['Source Port'] = df['Source Port'].fillna('N/A')
-                df['Destination Port'] = df['Destination Port'].fillna('N/A')
+                df['Source Port'] = df['Source Port'].fillna(0).astype(np.int32)
+                df['Destination Port'] = df['Destination Port'].fillna(0).astype(np.int32)
                 df['TCP Sequence Number'] = df['TCP Sequence Number'].fillna(0).astype(np.int32)  # Valore sicuro 0
                 df['TCP Acknowledgment Number'] = df['TCP Acknowledgment Number'].fillna(0).astype(np.int32)
 

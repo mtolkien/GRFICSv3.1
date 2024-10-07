@@ -63,5 +63,5 @@ def train_knn(dataset_path):
     print("\nMatrice di Confusione sul Test:")
     print(cmatrix)
 
-dataset_path = 'path_to_your_csv_file.csv'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/merged_output_binary.csv'
 train_knn(dataset_path)
