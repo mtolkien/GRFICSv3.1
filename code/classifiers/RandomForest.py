@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
@@ -15,19 +15,15 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
     X = data.drop(columns=['Type of connection'])
     y = data['Type of connection']
 
-    # Identifica le feature categoriali e le feature numeriche
-    categorical_features = ['Protocol']
-    numeric_features = X.columns.difference(categorical_features)
+    # Codifica le etichette in numeri
+    label_encoder = LabelEncoder()
+    y = label_encoder.fit_transform(y)
 
-    # Crea un ColumnTransformer per applicare trasformazioni diverse su categoriali e numeriche
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), numeric_features),
-            ('cat', OneHotEncoder(), categorical_features)
-        ])
+    numeric_features = X.columns
+    preprocessor = ColumnTransformer(transformers=[('num', MinMaxScaler(), numeric_features)])
 
-    # Suddivisione in training set e test set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+    # Suddivisione in training set e test set con stratificazione
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, stratify=y, random_state=42)
 
     # Applica il preprocessing
     X_train = preprocessor.fit_transform(X_train)
@@ -36,13 +32,18 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
     return X_train, y_train, X_test, y_test
 
 def train_rf(dataset_path):
+    print("Preprocessing data..")
     X_train, y_train, X_test, y_test = load_and_preprocess_data(dataset_path, test_size=0.2)
 
+    print("Distribuzione classi nel test set:", pd.Series(y_test).value_counts())
+
     # Inizializza il classificatore Random Forest
+    print("Training..")
     rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
     rf_classifier.fit(X_train, y_train)
 
     # Valuta sul set di test
+    print("Predict..")
     y_pred = rf_classifier.predict(X_test)
 
     # Calcola le metriche di valutazione sul test
@@ -63,5 +64,5 @@ def train_rf(dataset_path):
     print("\nMatrice di Confusione sul Test:")
     print(cmatrix)
 
-dataset_path = 'path_to_your_csv_file.csv'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/merged_output_binary.csv'
 train_rf(dataset_path)

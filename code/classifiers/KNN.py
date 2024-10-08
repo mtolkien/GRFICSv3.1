@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
@@ -19,16 +19,8 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(y)
 
-    # Identifica le feature categoriali e le feature numeriche
-    categorical_features = ['Protocol']
-    numeric_features = X.columns.difference(categorical_features)
-
-    # Crea un ColumnTransformer per applicare trasformazioni diverse su categoriali e numeriche
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), numeric_features),
-            ('cat', OneHotEncoder(), categorical_features)
-        ])
+    numeric_features = X.columns
+    preprocessor = ColumnTransformer(transformers=[('num', MinMaxScaler(), numeric_features)])
 
     # Suddivisione in training set e test set con stratificazione
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, stratify=y, random_state=42)
@@ -43,9 +35,11 @@ def train_knn(dataset_path):
     print("Preprocessing data..")
     X_train, y_train, X_test, y_test = load_and_preprocess_data(dataset_path, test_size=0.2)
 
-    print("Training..")
+    print("Distribuzione classi nel test set:", pd.Series(y_test).value_counts())
+
     # Inizializza il classificatore KNN
-    knn_classifier = KNeighborsClassifier(n_neighbors=5)
+    print("Training..")
+    knn_classifier = KNeighborsClassifier(n_neighbors=7)
     knn_classifier.fit(X_train, y_train)
 
     # Valuta sul set di test
@@ -71,4 +65,11 @@ def train_knn(dataset_path):
     print(cmatrix)
 
 dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/merged_output_binary.csv'
+data = pd.read_csv(dataset_path)
+
+count_type_0 = data[data['Type of connection'] == 0].shape[0]
+count_type_1 = data[data['Type of connection'] == 1].shape[0]
+print(f"Numero di righe con 'Type of connection' 0: {count_type_0}")
+print(f"Numero di righe con 'Type of connection' 1: {count_type_1}")
+
 train_knn(dataset_path)
