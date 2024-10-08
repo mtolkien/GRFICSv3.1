@@ -74,5 +74,6 @@ def merge_files(directory_path, target_count, chunk_size=10000):
     print('Dataset finale creato!\n')
 
 directory = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections_binary'
-num_rows = 32283
+# num_rows = 32283
+num_rows = 800
 merge_files(directory, num_rows)

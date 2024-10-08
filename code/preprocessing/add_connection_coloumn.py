@@ -75,7 +75,7 @@ def process_directory(input_directory_path, output_directory_path, txt_unique_co
                 df = pd.read_csv(file_path, low_memory=False)
                 file_name = os.path.basename(file_path)
 
-                print(f'Sto lavorando su questo file: {file_name}\n')
+                print(f'Sto lavorando su questo file: {file_name}')
 
                 # Determina la categoria di attacco
                 attack_category = determine_attack_category(file, root)
