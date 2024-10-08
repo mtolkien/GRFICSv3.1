@@ -22,14 +22,14 @@ def determine_attack_category(filename, directory_path):
     """
     if 'Flooding attack' in directory_path:
         return "Denial of Service"
-    elif 'Port Scan' in directory_path or 'OS Scan' in directory_path or 'Host Discovery' in directory_path:
+    elif 'Port scan' in directory_path or 'OS scan' in directory_path or 'Host Discovery' in directory_path:
         return "Network Scanning"
     elif 'OpenVAS_scan' in filename:
         return "Vulnerability Scanning"
     elif 'Modbus' in directory_path:
         return "Modbus Attack"
     else:
-        return "Benign"  # Categoria predefinita
+        return "Benign"
 
 
 def add_connection_column(df, unique_connections, attack_category, process_type):
@@ -96,6 +96,6 @@ def process_directory(input_directory_path, output_directory_path, txt_unique_co
 input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
 output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections'
 txt_unique_connections = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/connessioni_uniche.txt'
-process_type = 'Binary'
+process_type = 'Multiclass'
 
 process_directory(input_directory_path, output_directory_path, txt_unique_connections, process_type)
