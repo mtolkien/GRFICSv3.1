@@ -32,11 +32,20 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
     return X_train, y_train, X_test, y_test
 
 def evaluate_model(y_true, y_pred, dataset_type='Test'):
+    num_classes = len(set(y_true))
+
+    if num_classes == 2:
+        average_type = 'binary'
+        pos_label = 1
+    else:
+        average_type = 'macro'
+        pos_label = None
+
     # Calcola le metriche di valutazione
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, pos_label=1, zero_division=0)
-    recall = recall_score(y_true, y_pred, pos_label=1, zero_division=0)
-    f1 = f1_score(y_true, y_pred, pos_label=1, zero_division=0)
+    precision = precision_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
+    recall = recall_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
+    f1 = f1_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
 
     # Stampa i risultati
     print(f"\nRisultati sul {dataset_type}:")
@@ -46,9 +55,10 @@ def evaluate_model(y_true, y_pred, dataset_type='Test'):
     print(f"F1 Score del {dataset_type}: {f1:.4f}")
 
     # Calcola e visualizza la matrice di confusione
-    cmatrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
+    cmatrix = confusion_matrix(y_true, y_pred)
     print(f"\nMatrice di Confusione sul {dataset_type}:")
     print(cmatrix)
+
 
 def train_rf(dataset_path):
     print("Preprocessing data..")
@@ -75,5 +85,5 @@ def train_rf(dataset_path):
     # Valuta sul set di test
     evaluate_model(y_test, y_pred, dataset_type='Test')
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Binary.csv'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Multiclass.csv'
 train_rf(dataset_path)

@@ -50,32 +50,27 @@ def merge_files(directory_path, num_rows_per_category, chunk_size=10000):
 
     print(f"Categorie di attacco trovate: {categories_found}")
 
-    # Per ogni categoria di attacco trovata, processa i file e campiona
+    # Per ogni categoria di attacco trovata, processa i file e raccogli righe
     for category in categories_found:
         category_rows_sampled = pd.DataFrame()
-        total_category_rows = 0
 
         for root, dirs, files in os.walk(directory_path):
             for file in files:
                 if file.endswith('.csv') and file != 'idle.csv':
                     file_path = os.path.join(root, file)
 
-                    # Processa il file corrente e campiona righe della categoria
-                    sampled_rows = process_category(file_path, category, num_rows_per_category - total_category_rows,
-                                                    chunk_size)
+                    # Processa il file corrente e raccogli righe della categoria
+                    sampled_rows = process_category(file_path, category, num_rows_per_category, chunk_size)
                     if not sampled_rows.empty:
                         sampled_rows['Type of connection'] = category  # Assicurati che la categoria sia presente
                         category_rows_sampled = pd.concat([category_rows_sampled, sampled_rows], ignore_index=True)
-                        total_category_rows += len(sampled_rows)
 
-                    # Se abbiamo già abbastanza righe per questa categoria, interrompi
-                    if total_category_rows >= num_rows_per_category:
-                        break
-
+        # Dopo aver raccolto tutte le righe per questa categoria, effettua il campionamento
         if not category_rows_sampled.empty:
-            # Aggiungi le righe campionate al file finale
-            category_rows_sampled.to_csv(output_file, mode='a', header=not os.path.exists(output_file), index=False)
-            total_attack_rows += total_category_rows
+            # Campiona esattamente 'num_rows_per_category' righe
+            final_sampled_rows = category_rows_sampled.sample(n=min(len(category_rows_sampled), num_rows_per_category), random_state=1)
+            final_sampled_rows.to_csv(output_file, mode='a', header=not os.path.exists(output_file), index=False)
+            total_attack_rows += len(final_sampled_rows)
 
     idle_rows_needed = total_attack_rows
 

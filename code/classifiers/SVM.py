@@ -75,5 +75,5 @@ def train_svm(dataset_path):
     # Valuta sul set di test
     evaluate_model(y_test, y_pred, dataset_type='Test')
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Binary.csv'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Multiclass.csv'
 train_svm(dataset_path)
