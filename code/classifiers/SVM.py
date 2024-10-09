@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn.svm import SVC
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
@@ -31,26 +32,37 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
 
     return X_train, y_train, X_test, y_test
 
-def evaluate_model(y_true, y_pred, dataset_type='Test'):
+def evaluate_model(y_true, y_pred, dataset_type, file_path):
+    num_classes = len(set(y_true))
+
+    if num_classes == 2:
+        average_type = 'binary'
+        pos_label = 1
+    else:
+        average_type = 'macro'
+        pos_label = None
+
     # Calcola le metriche di valutazione
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, pos_label=1, zero_division=0)
-    recall = recall_score(y_true, y_pred, pos_label=1, zero_division=0)
-    f1 = f1_score(y_true, y_pred, pos_label=1, zero_division=0)
+    precision = precision_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
+    recall = recall_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
+    f1 = f1_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
 
-    # Stampa i risultati
-    print(f"\nRisultati sul {dataset_type}:")
-    print(f"Accuracy del {dataset_type}: {accuracy:.4f}")
-    print(f"Precisione del {dataset_type}: {precision:.4f}")
-    print(f"Recall del {dataset_type}: {recall:.4f}")
-    print(f"F1 Score del {dataset_type}: {f1:.4f}")
+    cmatrix = confusion_matrix(y_true, y_pred)
 
-    # Calcola e visualizza la matrice di confusione
-    cmatrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
-    print(f"\nMatrice di Confusione sul {dataset_type}:")
-    print(cmatrix)
+    with open(file_path, "a") as f:
+        f.write(f"\nRisultati sul {dataset_type}:\n")
+        f.write(f"Accuracy del {dataset_type}: {accuracy:.4f}\n")
+        f.write(f"Precisione del {dataset_type}: {precision:.4f}\n")
+        f.write(f"Recall del {dataset_type}: {recall:.4f}\n")
+        f.write(f"F1 Score del {dataset_type}: {f1:.4f}\n")
+        f.write(f"\nMatrice di Confusione sul {dataset_type}:\n")
+        f.write(f"{cmatrix}\n")
 
-def train_svm(dataset_path):
+def train_svm(dataset_path, result_file):
+    if os.path.exists(result_file):
+        os.remove(result_file)
+
     print("Preprocessing data..")
     X_train, y_train, X_test, y_test = load_and_preprocess_data(dataset_path, test_size=0.2)
 
@@ -66,14 +78,15 @@ def train_svm(dataset_path):
     y_train_pred = svm_classifier.predict(X_train)
 
     # Valuta sul set di training
-    evaluate_model(y_train, y_train_pred, dataset_type='Training')
+    evaluate_model(y_train, y_train_pred, dataset_type='Training', file_path=result_file)
 
     # Valuta sul set di test
     print("Predict..")
     y_pred = svm_classifier.predict(X_test)
 
     # Valuta sul set di test
-    evaluate_model(y_test, y_pred, dataset_type='Test')
+    evaluate_model(y_test, y_pred, dataset_type='Test', file_path=result_file)
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Multiclass.csv'
-train_svm(dataset_path)
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Binary.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/SVM_Results.txt'
+train_svm(dataset_path, output_file)
