@@ -112,12 +112,12 @@ def train_rf_kfold(dataset_path, result_file, k_folds=10):
     # Calcola le medie delle metriche
     with open(result_file, "a") as f:
         f.write("\nRisultati medi su tutti i fold:\n")
-        f.write(f"Accuracy media (testing): {np.mean(accuracy_test_scores):.4f}\n")
-        f.write(f"Precisione media (testing): {np.mean(precision_scores):.4f}\n")
-        f.write(f"Recall media (testing): {np.mean(recall_scores):.4f}\n")
-        f.write(f"F1 Score medio (testing): {np.mean(f1_scores):.4f}\n")
+        f.write(f"Accuracy media: {np.mean(accuracy_test_scores):.4f}\n")
+        f.write(f"Precisione media: {np.mean(precision_scores):.4f}\n")
+        f.write(f"Recall media: {np.mean(recall_scores):.4f}\n")
+        f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/RandomForest_KFold_Results.txt'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/RandomForest_KFold_Results.txt'
 train_rf_kfold(dataset_path, output_file, k_folds=10)

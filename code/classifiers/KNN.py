@@ -115,6 +115,6 @@ def train_knn_kfold(dataset_path, result_file, k_folds=10):
         f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/KNN_KFold_Results.txt'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/KNN_KFold_Results.txt'
 train_knn_kfold(dataset_path, output_file, k_folds=10)
