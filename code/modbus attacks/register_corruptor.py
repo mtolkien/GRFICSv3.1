@@ -6,21 +6,20 @@ client = ModbusTcpClient('192.168.95.2', port=502)
 
 try:
     while True:
-        # Genera una lista di valori casuali
-        valori = [random.randint(0, 65535) for _ in range(13)]
+        # Generates a list of random values
+        values = [random.randint(0, 65535) for _ in range(13)]
 
-        response = client.write_registers(0, valori)
+        response = client.write_registers(0, values)
 
-        # Controlla se la scrittura ha avuto successo
         if response.isError():
-            print(f"Errore nella scrittura dei registri: {response}")
+            print(f"Error when writing registers: {response}")
         else:
-            print("Registri corrotti con successo.")
+            print("Corrupt registers with success")
 
         time.sleep(0.01)
 
 except KeyboardInterrupt:
-    print("Operazione interrotta")
+    print("Operation terminated")
 
 finally:
     client.close()

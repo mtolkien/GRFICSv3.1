@@ -1,13 +1,12 @@
 import time
 from pymodbus.client import ModbusTcpClient
 
-# Configura l'indirizzo IP e la porta del server Modbus
+# Configure IP Address and Port of the server Modbus
 client = ModbusTcpClient('192.168.95.2', port=502)
-
-print("Connessione in corso...")
+print("Connection...")
 client.connect()
 
-# Indirizzo coil
+# Coil address
 address = 40
 
 try:
@@ -16,9 +15,9 @@ try:
         result = client.write_coil(address, current_value)
 
         if result.isError():
-            print(f"Errore durante la scrittura del coil {address} con valore {current_value}")
+            print(f"Error when writing coil {address} with value {current_value}")
         else:
-            print(f"Coil {address} scritto con successo con valore {int(current_value)}")
+            print(f"Coil {address} successfully written with value {int(current_value)}")
 
         time.sleep(0.01)
 
@@ -26,14 +25,14 @@ try:
         result = client.write_coil(address, current_value)
 
         if result.isError():
-            print(f"Errore durante la scrittura del coil {address} con valore {current_value}")
+            print(f"Error when writing coil {address} with value {current_value}")
         else:
-            print(f"Coil {address} scritto con successo con valore {int(current_value)}")
+            print(f"Coil {address} successfully written with value {int(current_value)}")
 
         time.sleep(0.01)
 
 except KeyboardInterrupt:
-    print("Operazione interrotta")
+    print("Operation terminated")
 
 finally:
     client.close()

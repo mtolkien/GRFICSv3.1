@@ -3,10 +3,11 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+import numpy as np
 
-def load_and_preprocess_data(csv_file, test_size=0.2):
+def load_and_preprocess_data(csv_file):
     data = pd.read_csv(csv_file)
 
     # Rimuovi gli indirizzi IP
@@ -23,14 +24,10 @@ def load_and_preprocess_data(csv_file, test_size=0.2):
     numeric_features = X.columns
     preprocessor = ColumnTransformer(transformers=[('num', MinMaxScaler(), numeric_features)])
 
-    # Suddivisione in training set e test set con stratificazione e shuffle
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, stratify=y, random_state=42, shuffle=True)
-
     # Applica il preprocessing
-    X_train = preprocessor.fit_transform(X_train)
-    X_test = preprocessor.transform(X_test)
+    X = preprocessor.fit_transform(X)
 
-    return X_train, y_train, X_test, y_test
+    return X, y
 
 def evaluate_model(y_true, y_pred, dataset_type, file_path):
     num_classes = len(set(y_true))
@@ -50,6 +47,9 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
 
     cmatrix = confusion_matrix(y_true, y_pred)
 
+    # Verifica che la directory del file esista e creala se necessario
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
     with open(file_path, "a") as f:
         f.write(f"\nRisultati sul {dataset_type}:\n")
         f.write(f"Accuracy del {dataset_type}: {accuracy:.4f}\n")
@@ -59,35 +59,65 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
         f.write(f"\nMatrice di Confusione sul {dataset_type}:\n")
         f.write(f"{cmatrix}\n")
 
-
-def train_rf(dataset_path, result_file):
+def train_rf_kfold(dataset_path, result_file, k_folds=10):
     if os.path.exists(result_file):
         os.remove(result_file)
 
     print("Preprocessing data..")
-    X_train, y_train, X_test, y_test = load_and_preprocess_data(dataset_path, test_size=0.2)
+    X, y = load_and_preprocess_data(dataset_path)
 
-    print("Distribuzione classi nel test set:", pd.Series(y_test).value_counts())
+    # Inizializza KFold
+    kfold = KFold(n_splits=k_folds, shuffle=True, random_state=42)
 
-    # Inizializza il classificatore Random Forest
-    print("Training..")
-    rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf_classifier.fit(X_train, y_train)
+    # Variabili per tracciare le metriche aggregate
+    accuracy_test_scores = []
+    precision_scores = []
+    recall_scores = []
+    f1_scores = []
 
-    # Predizioni sul training set
-    print("Predicting on training set..")
-    y_train_pred = rf_classifier.predict(X_train)
+    fold_idx = 1
+    for train_index, test_index in kfold.split(X):
+        print(f"Fold {fold_idx}/{k_folds}")
 
-    # Valuta sul set di training
-    evaluate_model(y_train, y_train_pred, dataset_type='Training', file_path=result_file)
+        # Divisione del dataset in training e test set per il fold corrente
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
 
-    # Valuta sul set di test
-    print("Predict..")
-    y_pred = rf_classifier.predict(X_test)
+        # Inizializza il classificatore Random Forest
+        rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+        rf_classifier.fit(X_train, y_train)
 
-    # Valuta sul set di test
-    evaluate_model(y_test, y_pred, dataset_type='Test', file_path=result_file)
+        # Predizioni sul test set
+        y_test_pred = rf_classifier.predict(X_test)
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Binary.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/RandomForest_Results.txt'
-train_rf(dataset_path, output_file)
+        # Valutazione sul test set
+        accuracy_test = accuracy_score(y_test, y_test_pred)
+        accuracy_test_scores.append(accuracy_test)
+
+        # Valutazione sul test set per altre metriche
+        precision = precision_score(y_test, y_test_pred, average='macro', zero_division=0)
+        recall = recall_score(y_test, y_test_pred, average='macro', zero_division=0)
+        f1 = f1_score(y_test, y_test_pred, average='macro', zero_division=0)
+
+        # Aggiungi le metriche per il test set
+        precision_scores.append(precision)
+        recall_scores.append(recall)
+        f1_scores.append(f1)
+
+        # Salva i risultati per il fold corrente
+        evaluate_model(y_test, y_test_pred, dataset_type=f'Test Fold {fold_idx}', file_path=result_file)
+
+        fold_idx += 1
+
+    # Calcola le medie delle metriche
+    with open(result_file, "a") as f:
+        f.write("\nRisultati medi su tutti i fold:\n")
+        f.write(f"Accuracy media (testing): {np.mean(accuracy_test_scores):.4f}\n")
+        f.write(f"Precisione media (testing): {np.mean(precision_scores):.4f}\n")
+        f.write(f"Recall media (testing): {np.mean(recall_scores):.4f}\n")
+        f.write(f"F1 Score medio (testing): {np.mean(f1_scores):.4f}\n")
+
+
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/RandomForest_KFold_Results.txt'
+train_rf_kfold(dataset_path, output_file, k_folds=10)
