@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import pickle
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
@@ -27,7 +28,7 @@ def load_and_preprocess_data(csv_file):
     # Applica il preprocessing
     X = preprocessor.fit_transform(X)
 
-    return X, y
+    return X, y, label_encoder, preprocessor
 
 def evaluate_model(y_true, y_pred, dataset_type, file_path):
     num_classes = len(set(y_true))
@@ -59,12 +60,13 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
         f.write(f"\nMatrice di Confusione sul {dataset_type}:\n")
         f.write(f"{cmatrix}\n")
 
+
 def train_knn_kfold(dataset_path, result_file, k_folds=10):
     if os.path.exists(result_file):
         os.remove(result_file)
 
     print("Preprocessing data..")
-    X, y = load_and_preprocess_data(dataset_path)
+    X, y, label_encoder, preprocessor = load_and_preprocess_data(dataset_path)
 
     # Inizializza KFold
     kfold = KFold(n_splits=k_folds, shuffle=True, random_state=1)
@@ -73,6 +75,10 @@ def train_knn_kfold(dataset_path, result_file, k_folds=10):
     precision_scores = []
     recall_scores = []
     f1_scores = []
+
+    best_model = None
+    best_accuracy = 0  # Variabile per tracciare la migliore accuracy
+    best_fold = 0  # Traccia il fold con la migliore accuracy
 
     fold_idx = 1
     for train_index, test_index in kfold.split(X):
@@ -104,17 +110,29 @@ def train_knn_kfold(dataset_path, result_file, k_folds=10):
         # Salva i risultati per il fold corrente
         evaluate_model(y_test, y_pred, dataset_type=f'Fold {fold_idx}', file_path=result_file)
 
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_model = knn_classifier
+            best_fold = fold_idx
+
         fold_idx += 1
+
+    with open(model_path, 'wb') as f:
+        pickle.dump({
+            'model': best_model,
+            'label_encoder': label_encoder,
+            'preprocessor': preprocessor
+        }, f)
 
     # Calcola le medie delle metriche
     with open(result_file, "a") as f:
         f.write("\nRisultati medi su tutti i fold:\n")
         f.write(f"Accuracy media: {np.mean(accuracy_scores):.4f}\n")
         f.write(f"Precisione media: {np.mean(precision_scores):.4f}\n")
-        f.write(f"Recall media: {np.mean(recall_scores):.4f}\n")
+        f.write(f"Recall medio: {np.mean(recall_scores):.4f}\n")
         f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
-
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/KNN_KFold_Results.txt'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/KNN_KFold_Results.txt'
+model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/best_knn_model.pkl'
 train_knn_kfold(dataset_path, output_file, k_folds=10)

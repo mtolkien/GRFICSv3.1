@@ -1,4 +1,5 @@
 import os
+import pickle
 import pandas as pd
 from sklearn.svm import SVC
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
@@ -27,7 +28,7 @@ def load_and_preprocess_data(csv_file):
     # Applica il preprocessing
     X = preprocessor.fit_transform(X)
 
-    return X, y
+    return X, y, label_encoder, preprocessor
 
 def evaluate_model(y_true, y_pred, dataset_type, file_path):
     num_classes = len(set(y_true))
@@ -64,7 +65,7 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
         os.remove(result_file)
 
     print("Preprocessing data..")
-    X, y = load_and_preprocess_data(dataset_path)
+    X, y, label_encoder, preprocessor = load_and_preprocess_data(dataset_path)
 
     # Inizializza KFold
     kfold = KFold(n_splits=k_folds, shuffle=True, random_state=42)
@@ -74,6 +75,10 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
     precision_scores = []
     recall_scores = []
     f1_scores = []
+
+    best_model = None
+    best_accuracy = 0
+    best_fold = 0
 
     fold_idx = 1
     for train_index, test_index in kfold.split(X):
@@ -107,9 +112,20 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
         # Salva i risultati per il fold corrente
         evaluate_model(y_test, y_test_pred, dataset_type=f'Test Fold {fold_idx}', file_path=result_file)
 
+        if accuracy_test > best_accuracy:
+            best_accuracy = accuracy_test
+            best_model = svm_classifier  # Salva il modello migliore
+            best_fold = fold_idx
+
         fold_idx += 1
 
-    # Calcola le medie delle metriche
+    with open(model_path, 'wb') as f:
+        pickle.dump({
+            'model': best_model,
+            'label_encoder': label_encoder,
+            'preprocessor': preprocessor
+        }, f)
+
     with open(result_file, "a") as f:
         f.write("\nRisultati medi su tutti i fold:\n")
         f.write(f"Accuracy media: {np.mean(accuracy_test_scores):.4f}\n")
@@ -117,7 +133,7 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
         f.write(f"Recall media: {np.mean(recall_scores):.4f}\n")
         f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
-
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/SVM_KFold_Results.txt'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/SVM_KFold_Results.txt'
+model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/best_svm_model.pkl'
 train_svm_kfold(dataset_path, output_file, k_folds=10)
