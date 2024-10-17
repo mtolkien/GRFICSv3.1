@@ -1,18 +1,20 @@
 import os
-import csv
 import pandas as pd
-
 
 def load_unique_connections(txt_file):
     """
-    Carica le connessioni uniche da un file di testo.
+    Carica le connessioni uniche da un file di testo che include il conteggio dopo i due IP.
+    Ignora il conteggio e considera solo la coppia di IP.
     """
     unique_connections = set()
     with open(txt_file, mode='r') as file:
         for line in file:
-            source_ip, destination_ip = line.strip().split(', ')
+            connection_part = line.split(':')[0]
+            source_ip, destination_ip = connection_part.strip().split(', ')
+
             connection = tuple(sorted([source_ip, destination_ip]))
             unique_connections.add(connection)
+
     return unique_connections
 
 
@@ -93,9 +95,9 @@ def process_directory(input_directory_path, output_directory_path, txt_unique_co
                 print(f"File salvato in: {output_file_path}\n")
 
 
-input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
-output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections'
-txt_unique_connections = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/connessioni_uniche.txt'
+input_directory_path = '/run/media/alessandro/TOSHIBA EXT/CIC2017/benign/cleared'
+output_directory_path = '/run/media/alessandro/TOSHIBA EXT/CIC2017/benign'
+txt_unique_connections = '/run/media/alessandro/TOSHIBA EXT/CIC2017/benign/connessioni_uniche.txt'
 process_type = 'Multiclass'
 
 process_directory(input_directory_path, output_directory_path, txt_unique_connections, process_type)

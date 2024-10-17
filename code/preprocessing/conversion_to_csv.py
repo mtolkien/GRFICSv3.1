@@ -8,7 +8,10 @@ def map_protocol_to_number(protocol):
         'TCP': 1, 'UDP': 2, 'ICMP': 3, 'HTTP': 4,
         'HTTPS': 5, 'DNS': 6, 'DHCP': 7, 'ARP': 8,
         'TLS': 9, 'FTP': 10, 'SSH': 11, 'SMTP': 12,
-        'SNMP': 13, 'Modbus/TCP': 14, 'SMB': 15
+        'SNMP': 13, 'Modbus/TCP': 14, 'SMB': 15,
+        'POP3': 16, 'IMAP': 17, 'NTP': 18, 'BGP': 19,
+        'RDP': 20, 'LDAP': 21, 'Telnet': 22, 'SIP': 23,
+        'LLDP': 24, 'MPLS': 25
     }
     return protocol_mapping.get(protocol, 0)
 
@@ -16,12 +19,12 @@ def map_protocol_to_number(protocol):
 def preprocess_frame_time_delta(df):
     if 'frame.time_delta' in df.columns:
         df['frame.time_delta'] = pd.to_numeric(df['frame.time_delta'], errors='coerce')
-        df['Packet Frequency'] = 1 / df['frame.time_delta'].replace(0, pd.NA)  # Calcola la frequenza
+        df['Packet Frequency'] = 1 / df['frame.time_delta'].replace(0, pd.NA)
         df.drop(columns=['frame.time_delta'], inplace=True)
     return df
 
 
-def process_pcapng(input_file, output_file):
+def process_pcapng(input_file, output_file, extract_sample, max_lines):
     command = [
         "tshark",
         "-r", input_file,
@@ -47,43 +50,63 @@ def process_pcapng(input_file, output_file):
         "-E", "separator=;",
     ]
 
-    with open(output_file, 'w') as outfile:
-        process = subprocess.Popen(command, stdout=outfile, stderr=subprocess.PIPE)
-        _, stderr = process.communicate()
+    line_count = 0
 
-        if process.returncode != 0:
-            print(f"Errore durante l'elaborazione di {input_file}: {stderr.decode('utf-8')}")
-        else:
-            print(f"Elaborazione completata: {output_file}")
-            rename_and_modify_csv(output_file, custom_labels)
+    with open(output_file, 'w') as outfile:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        try:
+            while True:
+                output = process.stdout.readline()
+                if output == b"" and process.poll() is not None:
+                    break
+                if output:
+                    outfile.write(output.decode())
+                    line_count += 1
+                    # Termina il campionamento se richiesto
+                    if extract_sample and line_count >= max_lines:
+                        break
+
+        except Exception as e:
+            print(f"Errore durante la lettura delle righe: {e}")
+        finally:
+            process.kill()
+            process.wait()
+
+    # Chiama la funzione per modificare le intestazioni del CSV
+    rename_and_modify_csv(output_file, custom_labels)
 
 
 def rename_and_modify_csv(output_file, custom_labels):
     try:
         df = pd.read_csv(output_file, sep=';', low_memory=False)
+
+        # Modifica le intestazioni e i protocolli
         df.columns = custom_labels
         df = preprocess_frame_time_delta(df)
         df['Protocol'] = df['Protocol'].apply(map_protocol_to_number)
         df.to_csv(output_file, index=False)
         print(f"Intestazioni del CSV aggiornate per: {output_file}\n")
+
+    except pd.errors.EmptyDataError:
+        print(f"Nessun dato trovato nel file: {output_file}\n")
     except Exception as e:
         print(f"Errore durante la modifica delle etichette per {output_file}: {e}\n")
 
 
-def process_folder(input_folder_path, output_folder_path):
+def process_folder(input_folder_path, output_folder_path, extract_sample, max_lines):
     for root, dirs, files in os.walk(input_folder_path):
         for file in files:
-            if file.endswith(".pcapng"):
+            if file.endswith(".pcap"):
                 input_file = os.path.join(root, file)
 
-                # Crea la struttura delle cartelle nel percorso di output
                 relative_path = os.path.relpath(root, input_folder_path)
                 output_dir = os.path.join(output_folder_path, relative_path)
                 os.makedirs(output_dir, exist_ok=True)
 
-                output_file = os.path.join(output_dir, file.replace(".pcapng", ".csv"))
+                output_file = os.path.join(output_dir, file.replace(".pcap", ".csv"))
 
-                process_pcapng(input_file, output_file)
+                process_pcapng(input_file, output_file, extract_sample, max_lines)
 
 
 custom_labels = [
@@ -93,7 +116,9 @@ custom_labels = [
     "FIN Flag", "RST Flag", "PSH Flag", "URG Flag"
 ]
 
-input_folder_path = "/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/pcapng"
-output_folder_path = "/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv before cleaning"
+input_folder_path = "/run/media/alessandro/TOSHIBA EXT/CIC2017/benign"
+output_folder_path = "/run/media/alessandro/TOSHIBA EXT/CIC2017/benign"
+extract_sample = True
+max_lines = 5000000
 
-process_folder(input_folder_path, output_folder_path)
+process_folder(input_folder_path, output_folder_path, extract_sample, max_lines)
