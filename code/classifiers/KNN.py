@@ -5,7 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import numpy as np
 
 def load_and_preprocess_data(csv_file):
@@ -60,8 +60,7 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
         f.write(f"\nMatrice di Confusione sul {dataset_type}:\n")
         f.write(f"{cmatrix}\n")
 
-
-def train_knn_kfold(dataset_path, result_file, k_folds=10):
+def train_knn_kfold(dataset_path, result_file, model_path, k_folds=10):
     if os.path.exists(result_file):
         os.remove(result_file)
 
@@ -110,6 +109,12 @@ def train_knn_kfold(dataset_path, result_file, k_folds=10):
         # Salva i risultati per il fold corrente
         evaluate_model(y_test, y_pred, dataset_type=f'Fold {fold_idx}', file_path=result_file)
 
+        # Calcola e salva l'accuracy per ciascuna classe
+        report = classification_report(y_test, y_pred, target_names=label_encoder.classes_, output_dict=True)
+        with open(result_file, "a") as f:
+            f.write(f"\nReport di classificazione per {dataset_type}:\n")
+            f.write(f"{classification_report(y_test, y_pred, target_names=label_encoder.classes_)}\n")
+
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             best_model = knn_classifier
@@ -132,7 +137,7 @@ def train_knn_kfold(dataset_path, result_file, k_folds=10):
         f.write(f"Recall medio: {np.mean(recall_scores):.4f}\n")
         f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/KNN_KFold_Results.txt'
-model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/best_knn_model.pkl'
-train_knn_kfold(dataset_path, output_file, k_folds=10)
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/KNN_KFold_Results.txt'
+model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/best_knn_model.pkl'
+train_knn_kfold(dataset_path, output_file, model_path, k_folds=10)

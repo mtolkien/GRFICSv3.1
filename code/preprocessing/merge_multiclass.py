@@ -25,13 +25,11 @@ def process_category(file_path, category, num_rows_per_category, chunk_size=1000
             break
 
     if not sampled_rows.empty:
-        return sampled_rows.sample(n=min(total_rows, num_rows_per_category), random_state=1)  # Shuffla e campiona
+        return sampled_rows.sample(n=min(total_rows, num_rows_per_category), random_state=1)
     return pd.DataFrame()
 
 
-def merge_files(directory_path, num_rows_per_category, chunk_size=10000):
-    output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Multiclass.csv'
-
+def merge_files(directory_path, num_rows_per_category, benign_file_path, output_file, chunk_size=10000):
     if os.path.exists(output_file):
         os.remove(output_file)
 
@@ -40,7 +38,7 @@ def merge_files(directory_path, num_rows_per_category, chunk_size=10000):
     # Trova tutte le categorie presenti nei file CSV
     for root, dirs, files in os.walk(directory_path):
         for file in files:
-            if file.endswith('.csv') and file != 'idle.csv':
+            if file.endswith('.csv') and os.path.join(root, file) != benign_file_path:
                 file_path = os.path.join(root, file)
                 categories_found.update(get_file_categories(file_path))
 
@@ -53,25 +51,25 @@ def merge_files(directory_path, num_rows_per_category, chunk_size=10000):
 
         for root, dirs, files in os.walk(directory_path):
             for file in files:
-                if file.endswith('.csv') and file != 'idle.csv':
+                if file.endswith('.csv') and os.path.join(root, file) != benign_file_path:
                     file_path = os.path.join(root, file)
 
                     sampled_rows = process_category(file_path, category, num_rows_per_category, chunk_size)
                     if not sampled_rows.empty:
-                        sampled_rows['Type of connection'] = category  # Assicurati che la categoria sia presente
+                        sampled_rows['Type of connection'] = category
                         category_rows_sampled = pd.concat([category_rows_sampled, sampled_rows], ignore_index=True)
 
         if not category_rows_sampled.empty:
             final_sampled_rows = category_rows_sampled.sample(n=min(len(category_rows_sampled), num_rows_per_category), random_state=1)
             final_sampled_rows.to_csv(output_file, mode='a', header=not os.path.exists(output_file), index=False)
 
-    idle_file = os.path.join(directory_path, 'idle.csv')
-    if os.path.exists(idle_file):
-        print(f"Processing: {os.path.basename(idle_file)}")
+    # Processa il file benigno
+    if os.path.exists(benign_file_path):
+        print(f"Processing: {os.path.basename(benign_file_path)}")
         idle_filtered_rows = pd.DataFrame()
         total_idle_rows = 0
 
-        for chunk in pd.read_csv(idle_file, chunksize=chunk_size):
+        for chunk in pd.read_csv(benign_file_path, chunksize=chunk_size):
             idle_filtered = chunk[chunk['Type of connection'] == 'Benign']
             idle_filtered_rows = pd.concat([idle_filtered_rows, idle_filtered], ignore_index=True)
             total_idle_rows += len(idle_filtered)
@@ -97,7 +95,10 @@ def merge_files(directory_path, num_rows_per_category, chunk_size=10000):
 
     print('Dataset finale creato!\n')
 
-directory = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections_multiclass'
-num_rows_per_category = 30000
 
-merge_files(directory, num_rows_per_category)
+directory = '/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/dataset Coimbra/csv with connections_multiclass'
+num_rows_per_category = 30000
+benign_file_path = '/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/dataset Coimbra/csv with connections_multiclass/eth2dump-clean-6h_1.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Dataset_Multiclass.csv'
+
+merge_files(directory, num_rows_per_category, benign_file_path, output_file)

@@ -5,7 +5,7 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 import numpy as np
 
 def load_and_preprocess_data(csv_file):
@@ -59,6 +59,11 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
         f.write(f"F1 Score del {dataset_type}: {f1:.4f}\n")
         f.write(f"\nMatrice di Confusione sul {dataset_type}:\n")
         f.write(f"{cmatrix}\n")
+
+        # Aggiungi il report di classificazione
+        report = classification_report(y_true, y_pred, output_dict=True)
+        f.write(f"\nReport di classificazione sul {dataset_type}:\n")
+        f.write(f"{classification_report(y_true, y_pred)}\n")
 
 def train_svm_kfold(dataset_path, result_file, k_folds=10):
     if os.path.exists(result_file):
@@ -119,6 +124,7 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
 
         fold_idx += 1
 
+    # Salva il miglior modello
     with open(model_path, 'wb') as f:
         pickle.dump({
             'model': best_model,
@@ -126,6 +132,7 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
             'preprocessor': preprocessor
         }, f)
 
+    # Salva i risultati medi
     with open(result_file, "a") as f:
         f.write("\nRisultati medi su tutti i fold:\n")
         f.write(f"Accuracy media: {np.mean(accuracy_test_scores):.4f}\n")
@@ -133,7 +140,7 @@ def train_svm_kfold(dataset_path, result_file, k_folds=10):
         f.write(f"Recall media: {np.mean(recall_scores):.4f}\n")
         f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/Dataset_Binary.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/SVM_KFold_Results.txt'
-model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Binario/best_svm_model.pkl'
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/SVM_KFold_Results.txt'
+model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/best_svm_model.pkl'
 train_svm_kfold(dataset_path, output_file, k_folds=10)
