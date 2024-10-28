@@ -77,7 +77,7 @@ def process_directory(input_directory_path, output_directory_path, txt_unique_co
                 df = pd.read_csv(file_path, low_memory=False)
                 file_name = os.path.basename(file_path)
 
-                print(f'Sto lavorando su questo file: {file_name}')
+                print(f'Processing this file: {file_name}')
 
                 # Determina la categoria di attacco
                 attack_category = determine_attack_category(file, root)
@@ -92,7 +92,7 @@ def process_directory(input_directory_path, output_directory_path, txt_unique_co
                 # Salva il file CSV modificato
                 output_file_path = os.path.join(output_dir, file_name)
                 df.to_csv(output_file_path, index=False)
-                print(f"File salvato in: {output_file_path}\n")
+                print(f"File saved in: {output_file_path}\n")
 
 
 input_directory_path = '/run/media/alessandro/TOSHIBA EXT/CIC2017/benign/cleared'

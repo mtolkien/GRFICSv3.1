@@ -68,7 +68,7 @@ def process_pcapng(input_file, output_file, extract_sample, max_lines):
                         break
 
         except Exception as e:
-            print(f"Errore durante la lettura delle righe: {e}")
+            print(f"Error during line reading: {e}")
         finally:
             process.kill()
             process.wait()
@@ -79,19 +79,19 @@ def process_pcapng(input_file, output_file, extract_sample, max_lines):
 
 def rename_and_modify_csv(output_file, custom_labels):
     try:
-        df = pd.read_csv(output_file, sep=';', low_memory=False)
+        df = pd.read_csv(output_file, sep=',', low_memory=False)
 
         # Modifica le intestazioni e i protocolli
         df.columns = custom_labels
         df = preprocess_frame_time_delta(df)
         df['Protocol'] = df['Protocol'].apply(map_protocol_to_number)
         df.to_csv(output_file, index=False)
-        print(f"Intestazioni del CSV aggiornate per: {output_file}\n")
+        print(f"Updated CSV headers for: {output_file}\n")
 
     except pd.errors.EmptyDataError:
-        print(f"Nessun dato trovato nel file: {output_file}\n")
+        print(f"No data found in the file: {output_file}\n")
     except Exception as e:
-        print(f"Errore durante la modifica delle etichette per {output_file}: {e}\n")
+        print(f"Error when editing labels for {output_file}: {e}\n")
 
 
 def process_folder(input_folder_path, output_folder_path, extract_sample, max_lines):
@@ -116,9 +116,8 @@ custom_labels = [
     "FIN Flag", "RST Flag", "PSH Flag", "URG Flag"
 ]
 
-input_folder_path = "/run/media/alessandro/TOSHIBA EXT/CIC2017/benign"
-output_folder_path = "/run/media/alessandro/TOSHIBA EXT/CIC2017/benign"
-extract_sample = True
+input_folder_path = "/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/CIC2017/pcap/friday"
+output_folder_path = "/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/CIC2017/pcap/friday csv"
+extract_sample = False
 max_lines = 5000000
-
 process_folder(input_folder_path, output_folder_path, extract_sample, max_lines)

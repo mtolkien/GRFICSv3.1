@@ -11,7 +11,7 @@ def clean_csv(input_directory_path, output_directory_path):
                 df = pd.read_csv(file_path, low_memory=False)
                 file_name = os.path.basename(file_path)
 
-                print(f'Sto lavorando su questo file: {file_name}\n')
+                print(f'Processing this file: {file_name}')
                 original_row_count = df.shape[0]
 
                 # Gestione dei valori mancanti in base alla colonna
@@ -48,7 +48,7 @@ def clean_csv(input_directory_path, output_directory_path):
                 df.to_csv(output_file_path, index=False)
 
 
-input_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv before cleaning'
-output_directory_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv after cleaning'
+input_directory_path = '/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/CIC2017/pcap/friday csv'
+output_directory_path = '/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/CIC2017/pcap/friday csv cleared'
 
 clean_csv(input_directory_path, output_directory_path)

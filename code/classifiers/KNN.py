@@ -5,7 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, recall_score, f1_score, confusion_matrix, classification_report
 import numpy as np
 
 def load_and_preprocess_data(csv_file):
@@ -30,7 +30,7 @@ def load_and_preprocess_data(csv_file):
 
     return X, y, label_encoder, preprocessor
 
-def evaluate_model(y_true, y_pred, dataset_type, file_path):
+def evaluate_model(y_true, y_pred, dataset_type, file_path, label_encoder):
     num_classes = len(set(y_true))
 
     if num_classes == 2:
@@ -42,7 +42,6 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
 
     # Calcola le metriche di valutazione
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
     recall = recall_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
     f1 = f1_score(y_true, y_pred, average=average_type, zero_division=0, pos_label=pos_label)
 
@@ -54,11 +53,15 @@ def evaluate_model(y_true, y_pred, dataset_type, file_path):
     with open(file_path, "a") as f:
         f.write(f"\nRisultati sul {dataset_type}:\n")
         f.write(f"Accuracy del {dataset_type}: {accuracy:.4f}\n")
-        f.write(f"Precisione del {dataset_type}: {precision:.4f}\n")
         f.write(f"Recall del {dataset_type}: {recall:.4f}\n")
         f.write(f"F1 Score del {dataset_type}: {f1:.4f}\n")
         f.write(f"\nMatrice di Confusione sul {dataset_type}:\n")
         f.write(f"{cmatrix}\n")
+
+        # Aggiungi il report di classificazione
+        report = classification_report(y_true, y_pred, target_names=label_encoder.classes_)
+        f.write(f"\nReport di classificazione sul {dataset_type}:\n")
+        f.write(f"{report}\n")
 
 def train_knn_kfold(dataset_path, result_file, model_path, k_folds=10):
     if os.path.exists(result_file):
@@ -71,7 +74,6 @@ def train_knn_kfold(dataset_path, result_file, model_path, k_folds=10):
     kfold = KFold(n_splits=k_folds, shuffle=True, random_state=1)
 
     accuracy_scores = []
-    precision_scores = []
     recall_scores = []
     f1_scores = []
 
@@ -96,24 +98,16 @@ def train_knn_kfold(dataset_path, result_file, model_path, k_folds=10):
 
         # Valutazione sul fold corrente
         accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average='macro', zero_division=0)
         recall = recall_score(y_test, y_pred, average='macro', zero_division=0)
         f1 = f1_score(y_test, y_pred, average='macro', zero_division=0)
 
         # Aggiungi le metriche per questo fold
         accuracy_scores.append(accuracy)
-        precision_scores.append(precision)
         recall_scores.append(recall)
         f1_scores.append(f1)
 
-        # Salva i risultati per il fold corrente
-        evaluate_model(y_test, y_pred, dataset_type=f'Fold {fold_idx}', file_path=result_file)
-
-        # Calcola e salva l'accuracy per ciascuna classe
-        report = classification_report(y_test, y_pred, target_names=label_encoder.classes_, output_dict=True)
-        with open(result_file, "a") as f:
-            f.write(f"\nReport di classificazione per {dataset_type}:\n")
-            f.write(f"{classification_report(y_test, y_pred, target_names=label_encoder.classes_)}\n")
+        # Salva i risultati per il fold corrente, inclusi il report di classificazione
+        evaluate_model(y_test, y_pred, dataset_type=f'Fold {fold_idx}', file_path=result_file, label_encoder=label_encoder)
 
         if accuracy > best_accuracy:
             best_accuracy = accuracy
@@ -133,11 +127,11 @@ def train_knn_kfold(dataset_path, result_file, model_path, k_folds=10):
     with open(result_file, "a") as f:
         f.write("\nRisultati medi su tutti i fold:\n")
         f.write(f"Accuracy media: {np.mean(accuracy_scores):.4f}\n")
-        f.write(f"Precisione media: {np.mean(precision_scores):.4f}\n")
         f.write(f"Recall medio: {np.mean(recall_scores):.4f}\n")
         f.write(f"F1 Score medio: {np.mean(f1_scores):.4f}\n")
 
-dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/Dataset_Multiclass.csv'
-output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/KNN_KFold_Results.txt'
-model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/best_knn_model.pkl'
+# Percorsi del dataset e dei file di output
+dataset_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/3 attacchi + 1 benign/Dataset_Multiclass.csv'
+output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/3 attacchi + 1 benign/KNN_KFold_Results.txt'
+model_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/3 attacchi + 1 benign/best_knn_model.pkl'
 train_knn_kfold(dataset_path, output_file, model_path, k_folds=10)

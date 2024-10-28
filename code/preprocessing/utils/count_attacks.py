@@ -29,5 +29,5 @@ def count_attacks(directory, dataset_type):
                     else:
                         f_output.write(f"File: {file_name} -> Colonna 'Type of connection' non trovata\n")
 
-directory = "/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections_binary"
-count_attacks(directory, "Binary")
+directory = "/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse"
+count_attacks(directory, "Multiclass")
