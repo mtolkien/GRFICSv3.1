@@ -72,7 +72,11 @@ The testbed described above is made up of several virtual machines, and a specif
   8. To sum up: *GRFICSv2 > simulation_vm > simulation > remote_io > modbus > run_all.sh*
      
 ## Dataset
-The final dataset and intermediate files, including pcapng files, are publicly available in this [Google Drive](https://drive.google.com/drive/folders/1Ug0LFHZki467kKtPCwBwJ0JmP8iyukB9?usp=sharing)
+The final dataset and intermediate files, including pcapng files, are publicly available in this [Google Drive](https://drive.google.com/drive/folders/1Ug0LFHZki467kKtPCwBwJ0JmP8iyukB9?usp=sharing)  
+Two other datasets were found on the net, but they don't cover all the classes in the dataset generated in this work. The links to access them are as follows:
+- [IDS 2017](https://www.unb.ca/cic/datasets/ids-2017.html)
+- [modbus TCP SCADA](https://github.com/tjcruz-dei/ICS_PCAPS/releases/tag/MODBUSTCP%231)  
+For both of these datasets, the same preprocessing steps were applied, and the resulting files are available on the initial drive.
 
 ## Authors
 | Name | Description |
