@@ -79,7 +79,6 @@ The final dataset and intermediate files, including pcapng files, are publicly a
 Two other datasets were found on the net, but they don't cover all the classes in the dataset generated in this work. The links to access them are as follows:
 - [IDS 2017](https://www.unb.ca/cic/datasets/ids-2017.html)
 - [modbus TCP SCADA](https://github.com/tjcruz-dei/ICS_PCAPS/releases/tag/MODBUSTCP%231)  
-For both of these datasets, the same preprocessing steps were applied, and the resulting files are available on the initial drive.
 
 ## Authors
 | Name | Description |
