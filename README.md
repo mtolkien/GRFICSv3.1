@@ -1,4 +1,4 @@
-# An hybrid framework for SCADA cyber attack dataset generation
+# Attack Detection in Hybrid Simulated Industrial Control System
 
 ## Table of contents
 - [Project Overview](#project-overview)
