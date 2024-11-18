@@ -1,1 +1,0 @@
-HMI images go here.
