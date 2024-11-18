@@ -10,7 +10,10 @@
 - [Authors](#authors)
 
 ## Project Overview
-...
+The main objectives of this work are as follows:
+- Creation of the dataset about ICS: The thesis created a well-focused dataset related to industrial control systems to offer a better representation of real threats;
+- Simulation of cyber-attacks: Several types of attacks were simulated: specific, directed against the Modbus protocol typical of ICS systems, and more general attacks typical of network infrastructures;
+- Use of the Siamese neural network for the detection of anomalies. Following this idea, an attack detector was implemented using a Siamese neural network, and it was trained using the generated dataset.
 
 ## Architecture
 The architecture of this project represents a simulation of an Industrial Control System consisting of the following virtual machines:  
