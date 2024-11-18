@@ -6,7 +6,7 @@ import pickle
 def load_components(preprocessing_path):
     with open(preprocessing_path + "preprocessing.pkl", 'rb') as prepro_file:
         scaler, label_encoder = pickle.load(prepro_file)
-    print(f"Preprocessing caricato da {preprocessing_path}preprocessing.pkl")
+    print(f"Preprocessing loaded by {preprocessing_path}preprocessing.pkl")
 
     return scaler, label_encoder
 
@@ -14,9 +14,9 @@ def load_components(preprocessing_path):
 def save_components(model, scaler, le, results_path):
     model.save(results_path + 'siamese_model.h5')
     model.save(results_path + 'siamese_model.keras')
-    print(f"Modello salvato in {results_path}")
+    print(f"Model saved in {results_path}")
 
     with open(results_path + "preprocessing.pkl", 'wb') as file:
         pickle.dump((scaler, le), file)
-    print("Preprocessing salvato!")
+    print("Preprocessing saved!")
 

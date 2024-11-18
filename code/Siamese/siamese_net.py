@@ -3,7 +3,7 @@ from keras.optimizers import Adam
 from tensorflow.keras.layers import Input, Lambda, MaxPooling2D, Conv2D, Flatten
 from keras.models import load_model
 import tensorflow as tf
-from tensorflow.keras import backend as K  # Importa il backend da tensorflow
+from tensorflow.keras import backend as K
 
 class SiameseNet:
     def __init__(self, input_shape, verbose=True):
@@ -50,7 +50,7 @@ class SiameseNet:
         self.siamese_net.compile(loss=self.contrastive_loss, optimizer=self.optimizer, metrics=[self.accuracy])
 
         if verbose:
-            print('Rete Siamese Creata:\n')
+            print('Siamese Network created:\n')
             self.siamese_net.summary()
 
     def get(self):
@@ -68,7 +68,7 @@ class SiameseNet:
     def contrastive_loss(self, y_true, y_pred):
         '''Funzione di perdita contrastiva da Hadsell-et-al.'06'''
         margin = 1
-        y_true = K.cast(y_true, 'float32')  # Usa tf.keras.backend qui
+        y_true = K.cast(y_true, 'float32')
         square_pred = K.square(y_pred)
         margin_square = K.square(K.maximum(margin - y_pred, 0))
         return K.mean(y_true * square_pred + (1 - y_true) * margin_square)
