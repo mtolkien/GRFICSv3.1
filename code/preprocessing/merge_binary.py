@@ -20,16 +20,15 @@ def get_filtered_rows(file_path, rows_per_file, chunk_size=10000):
     else:
         return combined_rows.sample(n=rows_per_file, random_state=1)
 
-
 def merge_files(directory_path, num_rows, benign_file_path, output_file, chunk_size=10000):
-    # Rimuove il file di output se esiste già
+    # Remove the output file if it already exists
     if os.path.exists(output_file):
         os.remove(output_file)
 
     first_write = True
     total_attack_rows = 0
 
-    # Processa ogni file CSV nella directory specificata
+    # Process each CSV file in the specified directory
     for root, dirs, files in os.walk(directory_path):
         for file in files:
             if file.endswith('.csv') and os.path.join(root, file) != benign_file_path:
@@ -44,7 +43,7 @@ def merge_files(directory_path, num_rows, benign_file_path, output_file, chunk_s
                     first_write = False
                     total_attack_rows += len(filtered_rows)
 
-    # Processa il file benigno per eguagliare il numero totale di righe di attacco
+    # Process the benign file to match the total number of attack rows
     if os.path.exists(benign_file_path):
         print(f"Processing: {os.path.basename(benign_file_path)}")
         benign_filtered_rows = []
@@ -59,20 +58,19 @@ def merge_files(directory_path, num_rows, benign_file_path, output_file, chunk_s
         if not final_benign_filtered.empty:
             final_benign_filtered.sample(n=total_attack_rows, random_state=1).to_csv(output_file, mode='a', header=first_write, index=False)
 
-    # Legge il dataset finale
+    # Read the final dataset
     final_data = pd.read_csv(output_file)
     total_good_rows = final_data.shape[0] - total_attack_rows
 
-    # Miscelazione finale del dataset
+    # Final shuffle of the dataset
     final_data = final_data.sample(frac=1, random_state=1).reset_index(drop=True)
     final_data.to_csv(output_file, index=False)
 
-    print(f'\nNumero di righe di attacchi nel dataset finale: {total_attack_rows}')
-    print(f'Numero di righe benigne nel dataset finale: {total_good_rows}')
-    print(f'Numero totale di righe nel dataset finale: {final_data.shape[0]}')
+    print(f'\nNumber of attack rows in the final dataset: {total_attack_rows}')
+    print(f'Number of benign rows in the final dataset: {total_good_rows}')
+    print(f'Total number of rows in the final dataset: {final_data.shape[0]}')
 
-    print('Dataset finale creato!\n')
-
+    print('Final dataset created!\n')
 
 directory = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections_binary'
 num_rows = 1000

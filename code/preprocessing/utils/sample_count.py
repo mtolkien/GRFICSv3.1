@@ -11,26 +11,26 @@ def sample_count(file_path):
                 rows = int(parts[1].replace("Righe di attacchi: ", "").strip())
                 attack_rows[file_name] = rows
 
-    # Calcola il numero totale di file
+    # Calculate the total number of files
     num_file = len(attack_rows)
 
-    # Calcola il numero comune di rows da prelevare
+    # Calculate the common number of rows to sample
     common = max_samples // num_file if num_file > 0 else 0
 
-    # Inizializza un dizionario per i samples da prelevare
+    # Initialize a dictionary for the samples to pick
     sample_to_pick = {}
-    sum = 0
+    total_sum = 0
 
-    # Calcola i samples da prelevare per ciascun file
+    # Calculate the samples to pick for each file
     for file, rows in attack_rows.items():
         if common > rows:
             sample_to_pick[file] = rows
         else:
             sample_to_pick[file] = common
-        sum += sample_to_pick[file]
+        total_sum += sample_to_pick[file]
 
-    print(f"Numero comune di campioni da prelevare per ciascun file: {common}")
-    print(f"Somma totale di samples da prelevare: {sum}")
+    print(f"Common number of samples to take for each file: {common}")
+    print(f"Total sum of samples to take: {total_sum}")
 
 file_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/count_attacks_total.txt'
 sample_count(file_path)

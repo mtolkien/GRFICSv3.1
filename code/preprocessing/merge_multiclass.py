@@ -1,13 +1,11 @@
 import os
 import pandas as pd
 
-
 def get_file_categories(file_path, chunk_size=30000):
     categories = set()
     for chunk in pd.read_csv(file_path, chunksize=chunk_size):
         categories.update(chunk['Type of connection'].unique())
     return list(categories)
-
 
 def process_category(file_path, category, num_rows_per_category, chunk_size=10000):
     sampled_rows = pd.DataFrame()
@@ -27,7 +25,6 @@ def process_category(file_path, category, num_rows_per_category, chunk_size=1000
     if not sampled_rows.empty:
         return sampled_rows.sample(n=min(total_rows, num_rows_per_category), random_state=1)
     return pd.DataFrame()
-
 
 def merge_files(directory_path, num_rows_per_category, benign_file_path, output_file, num_attack_categories, chunk_size=10000):
     if os.path.exists(output_file):
@@ -100,10 +97,9 @@ def merge_files(directory_path, num_rows_per_category, benign_file_path, output_
 
     print('Final dataset created!\n')
 
-
-directory = '/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/dataset mio/csv with connections_multiclass'
+directory = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections_multiclass'
 num_rows_per_category = 30000
-benign_file_path = '/run/media/alessandro/TOSHIBA EXT/BACKUP ENDEAVOUR OS/tesi/dataset mio/csv with connections_multiclass/idle.csv'
+benign_file_path = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/csv with connections_multiclass/idle.csv'
 output_file = '/home/alessandro/Scrivania/UNISA - Magistrale/Tesi/dataset/Multiclasse/1 attacco + 1 benign/Dataset_Multiclass.csv'
 num_attack_categories = 1
 

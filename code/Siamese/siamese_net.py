@@ -7,14 +7,14 @@ from tensorflow.keras import backend as K
 
 class SiameseNet:
     def __init__(self, input_shape, verbose=True):
-        # Definizione degli input per le due ramificazioni della rete Siamese
+        # Definition of inputs for the two branches of the Siamese network
         self.left_input = Input(input_shape)
         self.right_input = Input(input_shape)
         self.convnet = Sequential()
 
         lr = 0.0001
 
-        # Aggiunta di livelli convoluzionali
+        # Adding convolutional layers
         self.convnet.add(Conv2D(filters=256, kernel_size=(50, 1), strides=(1, 1), activation='relu', padding='same', input_shape=input_shape))
         self.convnet.add(Conv2D(filters=128, kernel_size=(10, 1), strides=(1, 1), activation='relu', padding='same'))
         self.convnet.add(MaxPooling2D(pool_size=(2, 1)))
@@ -23,7 +23,7 @@ class SiameseNet:
         self.convnet.add(MaxPooling2D(pool_size=(2, 1)))
 
         #######################################################################################
-        # Due ulteriori livelli
+        # Two additional layers
         self.convnet.add(Conv2D(filters=64, kernel_size=(3, 1), strides=(1, 1), activation='sigmoid', padding='same'))
         self.convnet.add(MaxPooling2D(pool_size=(2, 1)))
 
@@ -31,21 +31,21 @@ class SiameseNet:
         self.convnet.add(MaxPooling2D(pool_size=(1, 1)))
         #######################################################################################
 
-        # Appiattimento dell'output
+        # Flatten the output
         self.convnet.add(Flatten())
 
-        # Applica il modello convoluzionale ai due input
+        # Apply the convolutional model to the two inputs
         self.encoded_l = self.convnet(self.left_input)
         self.encoded_r = self.convnet(self.right_input)
 
-        # Livello per calcolare la distanza euclidea tra i due input codificati
+        # Layer to calculate the Euclidean distance between the two encoded inputs
         self.L1_layer = Lambda(self.euclidean_distance, output_shape=self.eucl_dist_output_shape)
 
-        # Calcola la distanza L1 tra le due codifiche
+        # Calculate the L1 distance between the two encodings
         self.L1_distance = self.L1_layer([self.encoded_l, self.encoded_r])
         self.siamese_net = Model(inputs=[self.left_input, self.right_input], outputs=self.L1_distance)
 
-        # Compilazione del modello
+        # Compile the model
         self.optimizer = Adam(lr)
         self.siamese_net.compile(loss=self.contrastive_loss, optimizer=self.optimizer, metrics=[self.accuracy])
 
@@ -66,7 +66,6 @@ class SiameseNet:
         return (shape1[0], 1)
 
     def contrastive_loss(self, y_true, y_pred):
-        '''Funzione di perdita contrastiva da Hadsell-et-al.'06'''
         margin = 1
         y_true = K.cast(y_true, 'float32')
         square_pred = K.square(y_pred)
@@ -74,7 +73,6 @@ class SiameseNet:
         return K.mean(y_true * square_pred + (1 - y_true) * margin_square)
 
     def accuracy(self, y_true, y_pred):
-        '''Calcola l'accuratezza con una soglia fissa sulle distanze.'''
         return K.mean(K.equal(y_true, K.cast(y_pred < 0.5, y_true.dtype)))
 
     def load_saved_model(self, file_name):

@@ -2,7 +2,6 @@ import os
 import subprocess
 import pandas as pd
 
-
 def map_protocol_to_number(protocol):
     protocol_mapping = {
         'TCP': 1, 'UDP': 2, 'ICMP': 3, 'HTTP': 4,
@@ -15,14 +14,12 @@ def map_protocol_to_number(protocol):
     }
     return protocol_mapping.get(protocol, 0)
 
-
 def preprocess_frame_time_delta(df):
     if 'frame.time_delta' in df.columns:
         df['frame.time_delta'] = pd.to_numeric(df['frame.time_delta'], errors='coerce')
         df['Packet Frequency'] = 1 / df['frame.time_delta'].replace(0, pd.NA)
         df.drop(columns=['frame.time_delta'], inplace=True)
     return df
-
 
 def process_pcapng(input_file, output_file, extract_sample, max_lines):
     command = [
@@ -63,7 +60,7 @@ def process_pcapng(input_file, output_file, extract_sample, max_lines):
                 if output:
                     outfile.write(output.decode())
                     line_count += 1
-                    # Termina il campionamento se richiesto
+                    # Terminate sampling if requested
                     if extract_sample and line_count >= max_lines:
                         break
 
@@ -73,15 +70,14 @@ def process_pcapng(input_file, output_file, extract_sample, max_lines):
             process.kill()
             process.wait()
 
-    # Chiama la funzione per modificare le intestazioni del CSV
+    # Call the function to modify the CSV headers
     rename_and_modify_csv(output_file, custom_labels)
-
 
 def rename_and_modify_csv(output_file, custom_labels):
     try:
         df = pd.read_csv(output_file, sep=',', low_memory=False)
 
-        # Modifica le intestazioni e i protocolli
+        # Modify the headers and protocols
         df.columns = custom_labels
         df = preprocess_frame_time_delta(df)
         df['Protocol'] = df['Protocol'].apply(map_protocol_to_number)
@@ -92,7 +88,6 @@ def rename_and_modify_csv(output_file, custom_labels):
         print(f"No data found in the file: {output_file}\n")
     except Exception as e:
         print(f"Error when editing labels for {output_file}: {e}\n")
-
 
 def process_folder(input_folder_path, output_folder_path, extract_sample, max_lines):
     for root, dirs, files in os.walk(input_folder_path):
@@ -107,7 +102,6 @@ def process_folder(input_folder_path, output_folder_path, extract_sample, max_li
                 output_file = os.path.join(output_dir, file.replace(".pcap", ".csv"))
 
                 process_pcapng(input_file, output_file, extract_sample, max_lines)
-
 
 custom_labels = [
     "Packet Frequency", "Source IP", "Destination IP", "Protocol",
