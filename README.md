@@ -25,7 +25,7 @@ The architecture of this project represents a simulation of an Industrial Contro
 In addition to the virtual machines in the original testbed, a virtual machine was integrated with Kali Linux installed, which was indispensable for the next phases of the study.
 <br>
 <p align="center">
-  <img src="GRFICSv3/testbed.png" alt="Architecture" width="800">
+  <img src="testbed.png" alt="Architecture" width="800">
 </p>
 
 ## Initial Steps
